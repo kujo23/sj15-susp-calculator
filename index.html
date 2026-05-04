@@ -77,8 +77,8 @@ body.mode-psi .psi-row{display:none}
 <p class="app-sub">Stumpjumper 15 · Genie FLOAT shock · Fox Rhythm 36 fork · S3 · 175cm rider</p>
 
 <div class="tabs" role="tablist">
-  <button class="tab on" role="tab" aria-selected="true" onclick="setMode('wt')">By rider weight</button>
-  <button class="tab" role="tab" aria-selected="false" onclick="setMode('psi')">By air pressure</button>
+  <button type="button" class="tab on" role="tab" aria-selected="true" onclick="setMode('wt')">By rider weight</button>
+  <button type="button" class="tab" role="tab" aria-selected="false" onclick="setMode('psi')">By air pressure</button>
 </div>
 
 <div id="mWt" class="input-row">
@@ -87,8 +87,8 @@ body.mode-psi .psi-row{display:none}
     <div class="input-unit-row">
       <input type="number" id="riderIn" value="156" min="50" max="280" step="1" oninput="onWt()">
       <div class="tgrp">
-        <button class="tbtn on" id="bLbs" aria-pressed="true" onclick="setUnit('lbs')">lbs</button>
-        <button class="tbtn" id="bKg" aria-pressed="false" onclick="setUnit('kg')">kg</button>
+        <button type="button" class="tbtn on" id="bLbs" aria-pressed="true" onclick="setUnit('lbs')">lbs</button>
+        <button type="button" class="tbtn" id="bKg" aria-pressed="false" onclick="setUnit('kg')">kg</button>
       </div>
     </div>
   </div>
@@ -150,8 +150,8 @@ body.mode-psi .psi-row{display:none}
     <div class="chart-toolbar">
       <div class="chart-tgroups">
         <div class="tgrp">
-          <button class="tbtn on" id="tSj15" aria-pressed="true" onclick="toggleSeries('sj15')">SJ15</button>
-          <button class="tbtn on" id="tFoxSer" aria-pressed="true" onclick="toggleSeries('fox')">Fox data</button>
+          <button type="button" class="tbtn on" id="tSj15" aria-pressed="true" onclick="toggleSeries('sj15')">SJ15</button>
+          <button type="button" class="tbtn on" id="tFoxSer" aria-pressed="true" onclick="toggleSeries('fox')">Fox data</button>
         </div>
       </div>
     </div>
