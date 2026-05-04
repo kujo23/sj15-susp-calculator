@@ -13,9 +13,11 @@ A single-file HTML tool for dialing in the suspension on a Specialized **Stumpju
 
 ## Usage
 
-Open `sj15_suspension_calculator.html` in any modern browser. No build step, no dependencies — it's a single self-contained file.
+Open `index.html` in any modern browser. No build step, no dependencies — it's a single self-contained file.
 
 To host it, drop the file on any static server (GitHub Pages, Netlify, S3, etc.) or just double-click it locally.
+
+**Live version:** [kujo23.github.io/sj15-susp-calculator](https://kujo23.github.io/sj15-susp-calculator/)
 
 ## Data sources
 
