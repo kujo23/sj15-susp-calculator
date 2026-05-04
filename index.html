@@ -253,8 +253,9 @@ class MiniChart {
   }
   _interp(pts,x){
     if(!pts||!pts.length)return null;
-    if(x<=pts[0].x)return pts[0].y;
-    if(x>=pts[pts.length-1].x)return pts[pts.length-1].y;
+    if(x<pts[0].x||x>pts[pts.length-1].x)return null;
+    if(x===pts[0].x)return pts[0].y;
+    if(x===pts[pts.length-1].x)return pts[pts.length-1].y;
     for(let i=0;i<pts.length-1;i++){
       if(x>=pts[i].x&&x<=pts[i+1].x){return x-pts[i].x<=pts[i+1].x-x?pts[i].y:pts[i+1].y;}
     }
@@ -465,10 +466,11 @@ function refreshCharts(){
 // ── LEGENDS ───────────────────────────────────────────────────────────────────
 function fmtLeg(chart,sid,hx,defX,xMode){
   if(!chart)return'—';
-  if(hx==null&&xMode==='wt'&&mode==='wt'){
-    if(sid==='s'&&!specAt(wLbs))return'—';
-    if(sid==='sj15'&&!specAt(wLbs))return'—';
-    if(sid==='fox'&&!foxAt(wLbs))return'—';
+  if(xMode==='wt'&&mode==='wt'){
+    const lbs=hx!=null?(unit==='kg'?hx*LBS_PER_KG:hx):wLbs;
+    if(sid==='s'&&!specAt(lbs))return'—';
+    if(sid==='sj15'&&!specAt(lbs))return'—';
+    if(sid==='fox'&&!foxAt(lbs))return'—';
   }
   const x=hx!=null?hx:defX;
   const psi=chart.getValsAt(x,sid,'L');
