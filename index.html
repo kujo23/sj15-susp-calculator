@@ -80,6 +80,9 @@ body.mode-psi .psi-row{display:none}
   .card{box-shadow:none;border:1.5px solid #DDD9D4}
   .section{margin-bottom:20px}
 }
+.defaults-row{display:flex;gap:14px;align-items:center;margin-top:-22px;margin-bottom:28px}
+.def-btn{font-size:11px;font-weight:500;color:#A0998F;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;transition:color .15s}
+.def-btn:hover{color:#1A1917}
 </style>
 </head>
 <body>
@@ -134,8 +137,13 @@ body.mode-psi .psi-row{display:none}
   </div>
 </div>
 <div id="mPsi" class="input-row" style="display:none">
-  <div class="field"><label for="spIn">Shock PSI</label><input type="number" id="spIn" value="165" min="50" max="300" step="1" oninput="onPsi()"></div>
-  <div class="field"><label for="fpIn">Fork PSI</label><input type="number" id="fpIn" value="70" min="30" max="130" step="1" oninput="onPsi()"></div>
+  <div class="field"><label for="spIn">Shock PSI</label><input type="number" id="spIn" value="171" min="50" max="300" step="1" oninput="onPsi()"></div>
+  <div class="field"><label for="fpIn">Fork PSI</label><input type="number" id="fpIn" value="75" min="30" max="130" step="1" oninput="onPsi()"></div>
+</div>
+<div class="defaults-row">
+  <button type="button" class="def-btn" id="saveDefBtn" onclick="saveDefaults()">Save as default</button>
+  <span style="color:#C8C3BD;font-size:11px">·</span>
+  <button type="button" class="def-btn" onclick="resetToDefaults()">Reset to default</button>
 </div>
 
 <!-- SHOCK -->
@@ -229,7 +237,7 @@ const FOX_MIN_LBS  = FOX[0][0];                       // 120
 const FOX_MAX_LBS  = FOX[FOX.length - 1][1];          // 251
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=165,fpsi=70,sXMode='wt',fXMode='wt',showSj15=true,showFox=true;
+let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=171,fpsi=75,sXMode='wt',fXMode='wt',showSj15=true,showFox=true;
 
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
 function specAt(lbs){const w=Math.round(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC[w-SPEC_MIN_LBS]:null;}
@@ -664,10 +672,54 @@ function toggleSeries(w){
   refreshCharts();saveState();
 }
 
+function encodeURL(){
+  const p=new URLSearchParams();
+  const wD=unit==='kg'?(riderLbs/LBS_PER_KG).toFixed(1):Math.round(riderLbs);
+  const gD=unit==='kg'?(gearLbs/LBS_PER_KG).toFixed(1):Math.round(gearLbs);
+  p.set('w',wD);p.set('g',gD);p.set('u',unit);p.set('sp',spsi);p.set('fp',fpsi);
+  if(!showSj15)p.set('s','0');
+  if(!showFox)p.set('f','0');
+  if(mode!=='wt')p.set('m',mode);
+  history.replaceState(null,'','?'+p.toString());
+}
+function decodeURL(){
+  const p=new URLSearchParams(location.search);
+  if(!p.has('w')&&!p.has('sp'))return false;
+  if(p.has('u'))unit=p.get('u');
+  if(p.has('w')){const w=parseFloat(p.get('w'));riderLbs=unit==='kg'?w*LBS_PER_KG:w;}
+  if(p.has('g')){const g=parseFloat(p.get('g'));gearLbs=unit==='kg'?g*LBS_PER_KG:g;}
+  wLbs=riderLbs+gearLbs;
+  if(p.has('sp'))spsi=parseFloat(p.get('sp'));
+  if(p.has('fp'))fpsi=parseFloat(p.get('fp'));
+  if(p.has('s'))showSj15=p.get('s')!=='0';
+  if(p.has('f'))showFox=p.get('f')!=='0';
+  if(p.has('m'))mode=p.get('m');
+  return true;
+}
+function saveDefaults(){
+  try{localStorage.setItem('sj15_defaults',JSON.stringify({riderLbs,gearLbs,unit,spsi,fpsi}));}catch(e){}
+  const btn=document.getElementById('saveDefBtn');
+  btn.textContent='Saved!';setTimeout(()=>btn.textContent='Save as default',1500);
+}
+function resetToDefaults(){
+  try{
+    const d=JSON.parse(localStorage.getItem('sj15_defaults')||'{}');
+    riderLbs=(d.riderLbs>0)?d.riderLbs:156;
+    gearLbs=(d.gearLbs!=null&&d.gearLbs>=0)?d.gearLbs:10;
+    unit=d.unit||'lbs';
+    spsi=(d.spsi>0)?d.spsi:171;
+    fpsi=(d.fpsi>0)?d.fpsi:75;
+  }catch(e){riderLbs=156;gearLbs=10;unit='lbs';spsi=171;fpsi=75;}
+  wLbs=riderLbs+gearLbs;
+  setUnit(unit);
+  setMode('wt');
+}
 function saveState(){
-  try{localStorage.setItem('sj15',JSON.stringify({riderLbs,gearLbs,unit,spsi,fpsi,mode,showSj15,showFox}));}catch(e){}
+  try{localStorage.setItem('sj15',JSON.stringify({riderLbs,gearLbs,unit,spsi,fpsi,showSj15,showFox}));}catch(e){}
+  encodeURL();
 }
 function loadState(){
+  if(decodeURL())return;
   try{
     const d=JSON.parse(localStorage.getItem('sj15')||'{}');
     if(d.riderLbs>0)riderLbs=d.riderLbs;
@@ -677,7 +729,6 @@ function loadState(){
     if(d.unit)unit=d.unit;
     if(d.spsi>0)spsi=d.spsi;
     if(d.fpsi>0)fpsi=d.fpsi;
-    if(d.mode)mode=d.mode;
     if(d.showSj15!=null)showSj15=d.showSj15;
     if(d.showFox!=null)showFox=d.showFox;
   }catch(e){}
