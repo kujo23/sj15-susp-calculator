@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SJ15 Suspension Calculator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,sans-serif;background:#F2F1EE;color:#1A1917;padding:32px 24px;max-width:880px;margin:0 auto;min-height:100vh}
+.app-title{font-size:20px;font-weight:600;letter-spacing:-.4px;margin-bottom:3px}
+.app-sub{font-size:12px;color:#696663;margin-bottom:24px}
+.tabs{display:flex;background:#E8E6E2;border-radius:10px;padding:3px;width:fit-content;margin-bottom:26px;gap:2px}
+.tab{padding:7px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#696663;border-radius:8px;font-family:inherit;transition:all .15s}
+.tab.on{background:#fff;color:#1A1917;box-shadow:0 1px 3px rgba(0,0,0,.13)}
+.input-row{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+.wt-group{display:flex;align-items:flex-end;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10px;font-weight:600;color:#696663;text-transform:uppercase;letter-spacing:.07em}
+.field input[type=number]{width:100px;padding:9px 12px;border:1.5px solid #DDD9D4;border-radius:10px;font-size:15px;font-weight:500;background:#fff;color:#1A1917;font-family:inherit;outline:none;transition:border-color .15s;-moz-appearance:textfield}
+.field input[type=number]::-webkit-outer-spin-button,.field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.field input[type=number]:focus{border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.tgrp{display:flex;background:#E8E6E2;border-radius:8px;padding:2px;gap:1px}
+.tbtn{padding:7px 13px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#696663;border-radius:6px;font-family:inherit;transition:all .15s}
+.tbtn.on{background:#fff;color:#1A1917;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.section{margin-bottom:40px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#696663;white-space:nowrap}
+.sec-line{flex:1;height:1px;background:#DDD9D4}
+.cards-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);flex:1;min-width:148px}
+.card-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#696663;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.val-row{display:flex;align-items:baseline;gap:5px;padding:3px 0}
+.vk{font-size:11px;color:#696663;min-width:54px}
+.vn{font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1}
+.vu{font-size:11px;color:#696663}
+.oor{font-size:11px;color:#696663;font-style:italic;margin-top:4px}
+.c-shock{color:#6366F1}.c-sj15{color:#10B981}.c-fox{color:#F97316}
+.chart-card{background:#fff;border-radius:16px;padding:18px 18px 14px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04)}
+.chart-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.chart-tgroups{display:flex;gap:8px;align-items:center}
+canvas.mc{display:block;width:100%;height:250px;cursor:crosshair}
+.chart-legend{display:flex;gap:20px;margin-top:12px;flex-wrap:wrap;padding-left:2px}
+.leg{display:flex;align-items:center;gap:7px}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.leg-name{font-size:12px;color:#696663}
+.leg-val{font-size:12px;font-weight:600;color:#1A1917}
+.chart-axis-hint{display:flex;gap:16px;margin-bottom:4px;padding-left:2px}
+.axis-hint{font-size:10px;color:#696663;display:flex;align-items:center;gap:5px}
+.hint-line-solid{width:16px;height:2px;border-radius:1px;display:inline-block}
+.hint-line-dashed{width:16px;height:0;border-bottom:2px dashed;display:inline-block;opacity:.7}
+body.mode-psi .psi-row{display:none}
+.input-unit-row{display:flex;align-items:center;gap:8px}
+.wt-sep{font-size:13px;font-weight:500;color:#696663;padding-bottom:9px}
+#totalDisp{font-size:13px;font-weight:600;color:#1A1917;padding-bottom:9px;white-space:nowrap}
+.field input.oor-err{border-color:#F97316!important;box-shadow:0 0 0 3px rgba(249,115,22,.12)!important}
+@media(max-width:480px){
+  body{padding:20px 16px}
+  canvas.mc{height:200px}
+  .chart-axis-hint{flex-wrap:wrap;gap:8px}
+  .axis-hint{font-size:9px}
+  .cards-row{gap:8px}
+  .card{padding:14px 14px}
+  .vn{font-size:19px}
+}
+@media print{
+  .tabs,.input-row,.chart-card,.chart-toolbar{display:none!important}
+  body{background:#fff;padding:16px;max-width:100%}
+  .cards-row{break-inside:avoid}
+  .card{box-shadow:none;border:1.5px solid #DDD9D4}
+  .section{margin-bottom:20px}
+}
+</style>
+</head>
+<body>
+
+<h1 class="app-title">SJ15 Suspension Calculator</h1>
+<p class="app-sub">Stumpjumper 15 · Genie FLOAT shock · Fox Rhythm 36 fork · S3 · 175cm rider</p>
+
+<div class="tabs" role="tablist">
+  <button class="tab on" role="tab" aria-selected="true" onclick="setMode('wt')">By rider weight</button>
+  <button class="tab" role="tab" aria-selected="false" onclick="setMode('psi')">By air pressure</button>
+</div>
+
+<div id="mWt" class="input-row">
+  <div class="field">
+    <label for="riderIn">Rider weight</label>
+    <div class="input-unit-row">
+      <input type="number" id="riderIn" value="156" min="50" max="280" step="1" oninput="onWt()">
+      <div class="tgrp">
+        <button class="tbtn on" id="bLbs" aria-pressed="true" onclick="setUnit('lbs')">lbs</button>
+        <button class="tbtn" id="bKg" aria-pressed="false" onclick="setUnit('kg')">kg</button>
+      </div>
+    </div>
+  </div>
+  <div class="wt-group">
+    <span class="wt-sep">+</span>
+    <div class="field">
+      <label for="gearIn">Gear weight</label>
+      <input type="number" id="gearIn" value="10" min="0" max="100" step="1" oninput="onWt()" style="width:80px">
+    </div>
+    <span id="totalDisp">=&nbsp;166 lbs</span>
+  </div>
+</div>
+<div id="mPsi" class="input-row" style="display:none">
+  <div class="field"><label for="spIn">Shock PSI</label><input type="number" id="spIn" value="165" min="50" max="300" step="1" oninput="onPsi()"></div>
+  <div class="field"><label for="fpIn">Fork PSI</label><input type="number" id="fpIn" value="70" min="30" max="130" step="1" oninput="onPsi()"></div>
+</div>
+
+<!-- SHOCK -->
+<div class="section">
+  <div class="sec-head"><span class="sec-label">Shock</span><div class="sec-line"></div></div>
+  <div class="cards-row">
+    <div class="card" aria-live="polite">
+      <div class="card-label">Genie FLOAT</div>
+      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-shock" id="sPsi">—</span><span class="vu">psi</span></div>
+      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-shock" id="sReb">—</span><span class="vu">clicks</span></div>
+      <div class="oor" id="sOor" style="display:none"></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-axis-hint" id="sHint">
+      <span class="axis-hint"><span class="hint-line-solid" style="background:#6366F1"></span>pressure (psi)</span>
+      <span class="axis-hint"><span class="hint-line-dashed" style="border-color:#A5B4FC"></span>rebound (clicks)</span>
+    </div>
+    <canvas class="mc" id="sC" aria-label="Shock pressure and rebound vs rider weight chart"></canvas>
+    <div class="chart-legend">
+      <div class="leg"><div class="leg-dot" style="background:#6366F1"></div><span class="leg-name">Genie FLOAT</span><span class="leg-val" id="sLeg">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FORK -->
+<div class="section">
+  <div class="sec-head"><span class="sec-label">Fork</span><div class="sec-line"></div></div>
+  <div class="cards-row">
+    <div class="card" aria-live="polite">
+      <div class="card-label">Fox Rhythm · SJ15</div>
+      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-sj15" id="fSj15Psi">—</span><span class="vu">psi</span></div>
+      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-sj15" id="fSj15Reb">—</span><span class="vu">clicks</span></div>
+      <div class="oor" id="fSj15Oor" style="display:none"></div>
+    </div>
+    <div class="card" aria-live="polite">
+      <div class="card-label">Fox Rhythm · Fox</div>
+      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-fox" id="fFoxPsi">—</span><span class="vu">psi</span></div>
+      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-fox" id="fFoxReb">—</span><span class="vu">clicks</span></div>
+      <div class="oor" id="fFoxOor" style="display:none"></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-toolbar">
+      <div class="chart-tgroups">
+        <div class="tgrp">
+          <button class="tbtn on" id="tSj15" aria-pressed="true" onclick="toggleSeries('sj15')">SJ15</button>
+          <button class="tbtn on" id="tFoxSer" aria-pressed="true" onclick="toggleSeries('fox')">Fox data</button>
+        </div>
+      </div>
+    </div>
+    <div class="chart-axis-hint" id="fHint">
+      <span class="axis-hint hint-sj15"><span class="hint-line-solid" style="background:#10B981"></span>SJ15 pressure (psi)</span>
+      <span class="axis-hint hint-sj15"><span class="hint-line-dashed" style="border-color:#6EE7B7"></span>SJ15 rebound</span>
+      <span class="axis-hint hint-fox"><span class="hint-line-solid" style="background:#F97316"></span>Fox pressure (psi)</span>
+      <span class="axis-hint hint-fox"><span class="hint-line-dashed" style="border-color:#FDBA74"></span>Fox rebound</span>
+    </div>
+    <canvas class="mc" id="fC" aria-label="Fork pressure and rebound vs rider weight chart"></canvas>
+    <div class="chart-legend">
+      <div class="leg"><div class="leg-dot" style="background:#10B981"></div><span class="leg-name">SJ15</span><span class="leg-val" id="fLegSj15">—</span></div>
+      <div class="leg"><div class="leg-dot" style="background:#F97316"></div><span class="leg-name">Fox data</span><span class="leg-val" id="fLegFox">—</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const SPEC=[
+[96,45,13,13],[96,45,13,13],[98,46,13,13],[98,46,13,13],[100,47,13,13],[100,47,13,13],[104,48,13,13],[104,48,13,13],[104,48,13,13],[106,49,13,13],
+[106,49,13,13],[109,50,13,13],[109,50,13,13],[111,51,13,13],[111,51,13,13],[113,51,13,13],[113,51,13,13],[117,53,13,13],[117,53,13,13],[117,53,13,13],
+[119,53,13,13],[119,53,13,13],[121,54,13,13],[121,54,13,13],[124,55,13,13],[124,55,13,13],[126,56,13,13],[126,56,13,13],[130,57,13,12],[130,57,13,12],
+[130,57,13,12],[132,58,13,12],[132,58,13,12],[134,59,13,12],[134,59,13,12],[137,59,12,12],[137,59,12,12],[139,60,12,12],[139,60,12,12],[142,61,12,11],
+[142,61,12,11],[142,61,12,11],[145,62,12,11],[145,62,12,11],[147,63,11,11],[147,63,11,11],[150,64,11,11],[150,64,11,11],[152,65,11,11],[152,65,11,11],
+[152,65,11,11],[155,66,11,10],[155,66,11,10],[158,67,10,10],[158,67,10,10],[160,67,10,10],[160,67,10,10],[162,68,10,10],[162,68,10,10],[165,70,10,10],
+[165,70,10,10],[165,70,10,10],[168,71,10,9],[168,71,10,9],[171,72,10,9],[171,72,10,9],[173,73,9,9],[173,73,9,9],[175,74,9,9],[175,74,9,9],
+[178,74,9,8],[178,74,9,8],[178,74,9,8],[181,76,9,8],[181,76,9,8],[183,76,9,8],[183,76,9,8],[186,77,8,8],[186,77,8,8],[189,78,8,8],
+[189,78,8,8],[191,79,8,7],[191,79,8,7],[191,79,8,7],[195,80,7,7],[195,80,7,7],[198,81,7,7],[198,81,7,7],[201,82,7,7],[201,82,7,7],
+[203,83,7,6],[203,83,7,6],[207,85,6,6],[207,85,6,6],[207,85,6,6],[210,85,6,6],[210,85,6,6],[213,86,6,6],[213,86,6,6],[215,87,5,6],
+[215,87,5,6],[218,88,5,5],[218,88,5,5],[222,89,5,5],[222,89,5,5],[222,89,5,5],[224,90,5,5],[224,90,5,5],[227,91,4,5],[227,91,4,5],
+[230,91,4,4],[230,91,4,4],[232,92,4,4],[232,92,4,4],[236,93,3,4],[236,93,3,4],[236,93,3,4],[239,94,3,4],[239,94,3,4],[242,95,3,4],
+[242,95,3,4],[244,96,3,3],[244,96,3,3],[247,97,3,3],[247,97,3,3],[251,98,2,3],[251,98,2,3],[251,98,2,3],[254,99,2,3],[254,99,2,3],
+[256,100,2,2],[256,100,2,2],[259,101,2,2],[259,101,2,2],[262,102,2,2],[262,102,2,2],[266,103,1,2],[266,103,1,2],[266,103,1,2],[268,104,1,1]
+];
+const FOX=[[120,130,55,13],[130,140,59,12],[140,150,63,11],[150,160,67,10],[160,170,72,9],[170,180,76,8],[180,190,80,7],[190,200,85,6],[200,210,89,5],[210,220,93,4],[220,230,97,3],[230,240,102,2],[240,251,106,1]];
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const LBS_PER_KG   = 2.20462;
+const SPEC_MIN_LBS = 101;
+const SPEC_MAX_LBS = SPEC_MIN_LBS + SPEC.length - 1; // 240
+const FOX_MIN_LBS  = FOX[0][0];                       // 120
+const FOX_MAX_LBS  = FOX[FOX.length - 1][1];          // 251
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=165,fpsi=70,sXMode='wt',fXMode='wt',showSj15=true,showFox=true;
+
+// ── LOOKUPS ───────────────────────────────────────────────────────────────────
+function specAt(lbs){const w=Math.round(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC[w-SPEC_MIN_LBS]:null;}
+function foxAt(lbs){for(const r of FOX)if(lbs>=r[0]&&lbs<r[1])return{psi:r[2],c:r[3]};return null;}
+function nearestReb(pi,ri,psi){const pts=uniqByPsi(pi,ri);let b=pts[0],bd=Infinity;for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x<b.x)){bd=d;b=p;}}return b.y;}
+function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]<b[2])){bd=d;b=r;}}return b[3];}
+
+// ── DATASET BUILDERS ─────────────────────────────────────────────────────────
+function toDispX(lbs){return unit==='kg'?lbs/LBS_PER_KG:lbs;}
+function wtPsi(pi){return SPEC.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[pi]}));}
+function wtReb(ri){return SPEC.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[ri]}));}
+function uniqByPsi(pi,ri){const m={};for(const r of SPEC){const p=r[pi],c=r[ri];if(!m[p])m[p]={};m[p][c]=(m[p][c]||0)+1;}return Object.entries(m).map(([p,votes])=>{let best=null,bv=0;for(const[c,v]of Object.entries(votes))if(v>bv||(v===bv&&+c>+(best??-Infinity))){bv=v;best=c;}return{x:+p,y:+best};}).sort((a,b)=>a.x-b.x);}
+function sjPsiPts(pi,ri){const pts=uniqByPsi(pi,ri);const mn=pts[0].x,mx=pts[pts.length-1].x;const a=[];for(let p=mn;p<=mx;p++){let b=pts[0],bd=Infinity;for(const pt of pts){const d=Math.abs(pt.x-p);if(d<bd||(d===bd&&pt.x<b.x)){bd=d;b=pt;}}a.push({x:p,y:b.y});}return a;}
+function foxPsiPts(){const a=[];for(let p=FOX[0][2];p<=FOX[FOX.length-1][2];p++)a.push({x:p,y:foxRebByPsi(p)});return a;}
+function foxWtPts(col){const a=[];for(const r of FOX)for(let w=r[0];w<r[1];w++)a.push({x:toDispX(w),y:r[col]});return a;}
+
+// ── CHART ENGINE ─────────────────────────────────────────────────────────────
+class MiniChart {
+  constructor(canvasId, yLeftCfg, yRightCfg) {
+    this.el=document.getElementById(canvasId);
+    this.ctx=this.el.getContext('2d');
+    this.datasets=[];
+    this.markerX=null;
+    this.hoverX=null;
+    this.onHover=null;
+    this.xLabel='';
+    this.yL=yLeftCfg;
+    this.yR=yRightCfg;
+    this.PAD={t:18,b:38,l:50,r:18};
+    this._init();
+    this._events();
+  }
+  _init(){
+    const dpr=window.devicePixelRatio||1;
+    const W=this.el.offsetWidth,H=this.el.offsetHeight;
+    this.el.width=W*dpr;this.el.height=H*dpr;
+    this.ctx.scale(dpr,dpr);this.W=W;this.H=H;
+  }
+  get _dual(){return this.datasets.some(d=>!d.hidden&&d.axis==='L');}
+  get _rPad(){return this._dual?50:18;}
+  get cW(){return this.W-this.PAD.l-this._rPad;}
+  get cH(){return this.H-this.PAD.t-this.PAD.b;}
+  xp(x){const[a,b]=this._xr();return this.PAD.l+(x-a)/(b-a)*this.cW;}
+  _ypL(y){return this.PAD.t+this.cH*(1-(y-this.yL.min)/(this.yL.max-this.yL.min));}
+  _ypR(y){return this.PAD.t+this.cH*(1-(y-this.yR.min)/(this.yR.max-this.yR.min));}
+  yp(y,axis){return axis==='L'?this._ypL(y):this._ypR(y);}
+  px2x(px){const[a,b]=this._xr();return a+(px-this.PAD.l)/this.cW*(b-a);}
+  _xr(){
+    let mn=Infinity,mx=-Infinity;
+    for(const d of this.datasets){if(d.hidden)continue;for(const p of d.pts){if(p.x<mn)mn=p.x;if(p.x>mx)mx=p.x;}}
+    if(!isFinite(mn)){for(const d of this.datasets){for(const p of d.pts){if(p.x<mn)mn=p.x;if(p.x>mx)mx=p.x;}}}
+    return[isFinite(mn)?mn:0,isFinite(mx)?mx:1];
+  }
+  _interp(pts,x){
+    if(!pts||!pts.length)return null;
+    if(x<=pts[0].x)return pts[0].y;
+    if(x>=pts[pts.length-1].x)return pts[pts.length-1].y;
+    for(let i=0;i<pts.length-1;i++){
+      if(x>=pts[i].x&&x<=pts[i+1].x){return x-pts[i].x<=pts[i+1].x-x?pts[i].y:pts[i+1].y;}
+    }
+    return null;
+  }
+  _iv(ds,x){return this._interp(ds.pts,x);}
+  _step(r,n){const s=r/n,m=Math.pow(10,Math.floor(Math.log10(s))),f=s/m;return(f<1.5?1:f<3?2:f<7?5:10)*m;}
+  _curve(ctx,pts){
+    if(!pts.length)return;
+    ctx.moveTo(pts[0].x,pts[0].y);
+    if(pts.length<3){ctx.lineTo(pts[pts.length-1].x,pts[pts.length-1].y);return;}
+    const t=0.05;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[Math.max(i-1,0)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(i+2,pts.length-1)];
+      ctx.bezierCurveTo(p1.x+(p2.x-p0.x)*t/3,p1.y+(p2.y-p0.y)*t/3,p2.x-(p3.x-p1.x)*t/3,p2.y-(p3.y-p1.y)*t/3,p2.x,p2.y);
+    }
+  }
+  draw(){
+    const{ctx,PAD}=this;
+    ctx.clearRect(0,0,this.W,this.H);
+    const isDual=this._dual;
+    const rp=this._rPad;
+    const cW=this.cW,cH=this.cH;
+    const font='10px -apple-system,system-ui,sans-serif';
+    const [xMn,xMx]=this._xr();
+
+    // ── Y axis gridlines and labels ──
+    if(isDual){
+      const pStep=this.yL.step||this._step(this.yL.max-this.yL.min,6);
+      const pStart=Math.ceil(this.yL.min/pStep)*pStep;
+      for(let p=pStart;p<=this.yL.max+0.001;p+=pStep){
+        const py=this._ypL(p);
+        if(py<PAD.t-1||py>PAD.t+cH+1)continue;
+        ctx.beginPath();ctx.moveTo(PAD.l,py);ctx.lineTo(PAD.l+cW,py);
+        ctx.strokeStyle='rgba(0,0,0,.05)';ctx.lineWidth=1;ctx.setLineDash([]);ctx.stroke();
+        ctx.fillStyle='#696663';ctx.font=font;ctx.textAlign='right';
+        ctx.fillText(Math.round(p),PAD.l-5,py+3.5);
+      }
+      for(let r=0;r<=14;r+=2){
+        const py=this._ypR(r);
+        ctx.beginPath();ctx.moveTo(PAD.l+cW,py);ctx.lineTo(PAD.l+cW+4,py);
+        ctx.strokeStyle='rgba(0,0,0,.15)';ctx.lineWidth=1;ctx.setLineDash([]);ctx.stroke();
+        if(r>0){
+          ctx.fillStyle='#696663';ctx.font=font;ctx.textAlign='left';
+          ctx.fillText(r,PAD.l+cW+7,py+3.5);
+        }
+      }
+      ctx.save();ctx.fillStyle='#696663';ctx.font=font;
+      ctx.translate(11,PAD.t+cH/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
+      ctx.fillText('psi',0,0);ctx.restore();
+      ctx.save();ctx.fillStyle='#696663';ctx.font=font;
+      ctx.translate(this.W-11,PAD.t+cH/2);ctx.rotate(Math.PI/2);ctx.textAlign='center';
+      ctx.fillText('clicks',0,0);ctx.restore();
+    } else {
+      for(let r=0;r<=14;r+=2){
+        const py=this._ypR(r);
+        ctx.beginPath();ctx.moveTo(PAD.l,py);ctx.lineTo(PAD.l+cW,py);
+        ctx.strokeStyle=r===0?'rgba(0,0,0,.1)':'rgba(0,0,0,.05)';ctx.lineWidth=1;ctx.stroke();
+        if(r>0){ctx.fillStyle='#696663';ctx.font=font;ctx.textAlign='right';ctx.fillText(r,PAD.l-7,py+3.5);}
+      }
+      ctx.save();ctx.fillStyle='#696663';ctx.font=font;
+      ctx.translate(11,PAD.t+cH/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';
+      ctx.fillText('rebound (clicks)',0,0);ctx.restore();
+    }
+
+    // ── X gridlines and labels ──
+    const xStep=this._step(xMx-xMn,6);
+    const xStart=Math.ceil(xMn/xStep)*xStep;
+    for(let x=xStart;x<=xMx+.001;x+=xStep){
+      const px=this.xp(x);
+      ctx.beginPath();ctx.moveTo(px,PAD.t);ctx.lineTo(px,PAD.t+cH);
+      ctx.strokeStyle='rgba(0,0,0,.04)';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='#696663';ctx.font=font;ctx.textAlign='center';
+      ctx.fillText(Math.round(x),px,PAD.t+cH+16);
+    }
+    ctx.beginPath();ctx.moveTo(PAD.l,PAD.t+cH);ctx.lineTo(PAD.l+cW,PAD.t+cH);
+    ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#696663';ctx.font=font;ctx.textAlign='center';
+    ctx.fillText(this.xLabel,PAD.l+cW/2,this.H-5);
+
+    // ── Datasets: fills first, lines second ──
+    for(const pass of['fill','line']){
+      for(const ds of this.datasets){
+        if(ds.hidden||!ds.pts.length)continue;
+        const ax=ds.axis||'R';
+        const pxPts=ds.pts.map(p=>({x:this.xp(p.x),y:this.yp(p.y,ax)}));
+        const yBot=this.yp(ax==='L'?this.yL.min:this.yR.min,ax);
+        const drawPath=(c,p)=>this._curve(c,p);
+        if(pass==='fill'&&ds.fill){
+          const g=ctx.createLinearGradient(0,PAD.t,0,yBot);
+          g.addColorStop(0,ds.color+'40');g.addColorStop(1,ds.color+'00');
+          ctx.beginPath();drawPath(ctx,pxPts);
+          ctx.lineTo(pxPts[pxPts.length-1].x,yBot);ctx.lineTo(pxPts[0].x,yBot);ctx.closePath();
+          ctx.fillStyle=g;ctx.fill();
+        }
+        if(pass==='line'){
+          ctx.beginPath();ctx.setLineDash(ds.dash||[]);
+          drawPath(ctx,pxPts);
+          ctx.strokeStyle=ds.color;ctx.lineWidth=ds.lw||2;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    }
+
+    // ── Marker (selection) ──
+    if(this.markerX!=null){
+      const px=this.xp(this.markerX);
+      if(px>=PAD.l&&px<=PAD.l+cW){
+        ctx.save();ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.setLineDash([5,3]);
+        ctx.beginPath();ctx.moveTo(px,PAD.t);ctx.lineTo(px,PAD.t+cH);ctx.stroke();ctx.restore();
+        for(const ds of this.datasets){
+          if(ds.hidden)continue;
+          const y=this._iv(ds,this.markerX);if(y==null)continue;
+          const py=this.yp(y,ds.axis||'R');
+          ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);
+          ctx.fillStyle=ds.color;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
+        }
+      }
+    }
+
+    // ── Hover crosshair ──
+    if(this.hoverX!=null){
+      const px=this.xp(this.hoverX);
+      if(px>=PAD.l&&px<=PAD.l+cW){
+        ctx.save();ctx.strokeStyle='rgba(0,0,0,.12)';ctx.lineWidth=1;ctx.setLineDash([3,2]);
+        ctx.beginPath();ctx.moveTo(px,PAD.t);ctx.lineTo(px,PAD.t+cH);ctx.stroke();ctx.restore();
+        for(const ds of this.datasets){
+          if(ds.hidden)continue;
+          const y=this._iv(ds,this.hoverX);if(y==null)continue;
+          const py=this.yp(y,ds.axis||'R');
+          ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);
+          ctx.fillStyle=ds.color;ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([]);ctx.stroke();
+        }
+      }
+    }
+  }
+  getValsAt(x,sid,axis){
+    const ds=this.datasets.find(d=>d.sid===sid&&d.axis===axis&&!d.hidden);
+    return ds?this._iv(ds,x):null;
+  }
+  setData(ds,mx,xl){this.datasets=ds;this.markerX=mx;if(xl)this.xLabel=xl;this.draw();}
+  setMarker(x){this.markerX=x;this.draw();}
+  resize(){this._init();this.draw();}
+  _events(){
+    const move=mx=>{
+      if(mx<this.PAD.l||mx>this.PAD.l+this.cW){if(this.hoverX!=null){this.hoverX=null;this.draw();if(this.onHover)this.onHover(null);}return;}
+      this.hoverX=this.px2x(mx);this.draw();if(this.onHover)this.onHover(this.hoverX);
+    };
+    const clear=()=>{this.hoverX=null;this.draw();if(this.onHover)this.onHover(null);};
+    this.el.addEventListener('mousemove',e=>{const r=this.el.getBoundingClientRect();move(e.clientX-r.left);});
+    this.el.addEventListener('mouseleave',clear);
+    this.el.addEventListener('touchstart',e=>{e.preventDefault();const r=this.el.getBoundingClientRect();move(e.touches[0].clientX-r.left);},{passive:false});
+    this.el.addEventListener('touchmove',e=>{e.preventDefault();const r=this.el.getBoundingClientRect();move(e.touches[0].clientX-r.left);},{passive:false});
+    this.el.addEventListener('touchend',clear);
+    this.el.addEventListener('touchcancel',clear);
+  }
+}
+
+// ── CHART INSTANCES ───────────────────────────────────────────────────────────
+// yLeft aligned so gridlines at reb=2,4,...14 map to clean PSI values:
+// Shock:  yL.min=80, yL.max=290 → at reb=2: psi=110, ..., reb=14: psi=290
+// Fork:   yL.min=36, yL.max=120 → at reb=2: psi=48, ..., reb=14: psi=120
+let SC, FC;
+function initCharts(){
+  SC=new MiniChart('sC',{min:80,max:290,step:25},{min:0,max:14});
+  FC=new MiniChart('fC',{min:36,max:120,step:10},{min:0,max:14});
+  SC.onHover=hx=>updateLegends(hx,null);
+  FC.onHover=hx=>updateLegends(null,hx);
+  refreshCharts();
+}
+
+function refreshCharts(){
+  if(!SC||!FC)return;
+  const isDualS=sXMode==='wt', isDualF=fXMode==='wt';
+  const sMx=sXMode==='wt'?toDispX(wLbs):spsi;
+  const sXL=sXMode==='wt'?(unit==='kg'?'rider weight (kg)':'rider weight (lbs)'):'pressure (psi)';
+  const sDs=isDualS?[
+    {pts:wtPsi(0),   color:'#6366F1',axis:'L',sid:'s',dash:[],    lw:2.5, fill:true, hidden:false},
+    {pts:wtReb(2),   color:'#A5B4FC',axis:'R',sid:'s',dash:[6,3], lw:1.5, fill:false,hidden:false}
+  ]:[
+    {pts:sjPsiPts(0,2),color:'#6366F1',axis:'R',sid:'s',dash:[],lw:2,fill:true,hidden:false}
+  ];
+  SC.setData(sDs,sMx,sXL);
+  document.getElementById('sHint').style.display=isDualS?'':'none';
+
+  const fMx=fXMode==='wt'?toDispX(wLbs):fpsi;
+  const fXL=fXMode==='wt'?(unit==='kg'?'rider weight (kg)':'rider weight (lbs)'):'pressure (psi)';
+  let fDs;
+  if(isDualF){
+    fDs=[
+      {pts:wtPsi(1),       color:'#10B981',axis:'L',sid:'sj15',dash:[],    lw:2.5, fill:true, hidden:!showSj15},
+      {pts:wtReb(3),       color:'#6EE7B7',axis:'R',sid:'sj15',dash:[6,3], lw:1.5, fill:false,hidden:!showSj15},
+      {pts:foxWtPts(2),    color:'#F97316',axis:'L',sid:'fox', dash:[],    lw:2.5, fill:true, hidden:!showFox},
+      {pts:foxWtPts(3),    color:'#FDBA74',axis:'R',sid:'fox', dash:[6,3], lw:1.5, fill:false,hidden:!showFox}
+    ];
+  } else {
+    fDs=[
+      {pts:sjPsiPts(1,3),  color:'#10B981',axis:'R',sid:'sj15',dash:[],lw:2,fill:true,hidden:!showSj15},
+      {pts:foxPsiPts(),    color:'#F97316',axis:'R',sid:'fox', dash:[],lw:2,fill:true,hidden:!showFox}
+    ];
+  }
+  FC.setData(fDs,fMx,fXL);
+  document.getElementById('fHint').style.display=isDualF?'':'none';
+
+  updateLegends(null,null);
+}
+
+// ── LEGENDS ───────────────────────────────────────────────────────────────────
+function fmtLeg(chart,sid,hx,defX,xMode){
+  if(!chart)return'—';
+  if(hx==null&&xMode==='wt'&&mode==='wt'){
+    if(sid==='s'&&!specAt(wLbs))return'—';
+    if(sid==='sj15'&&!specAt(wLbs))return'—';
+    if(sid==='fox'&&!foxAt(wLbs))return'—';
+  }
+  const x=hx!=null?hx:defX;
+  const psi=chart.getValsAt(x,sid,'L');
+  const reb=chart.getValsAt(x,sid,'R');
+  const parts=[];
+  if(xMode==='wt'){parts.push(unit==='kg'?x.toFixed(1)+' kg':Math.round(x)+' lbs');}
+  if(psi!=null)parts.push(Math.round(psi)+' psi');
+  else if(xMode==='psi')parts.push(Math.round(x)+' psi');
+  if(reb!=null){const r=Math.round(reb);parts.push(r+(r===1?' click':' clicks'));}
+  return parts.join(' · ')||'—';
+}
+function updateLegends(shx,fhx){
+  const sDef=sXMode==='wt'?toDispX(wLbs):spsi;
+  const fDef=fXMode==='wt'?toDispX(wLbs):fpsi;
+  document.getElementById('sLeg').textContent=fmtLeg(SC,'s',shx,sDef,sXMode);
+  document.getElementById('fLegSj15').textContent=fmtLeg(FC,'sj15',fhx,fDef,fXMode);
+  document.getElementById('fLegFox').textContent=fmtLeg(FC,'fox',fhx,fDef,fXMode);
+  document.getElementById('fLegSj15').closest('.leg').style.display=showSj15?'':'none';
+  document.getElementById('fLegFox').closest('.leg').style.display=showFox?'':'none';
+  document.querySelectorAll('.hint-sj15').forEach(el=>el.style.display=showSj15?'':'none');
+  document.querySelectorAll('.hint-fox').forEach(el=>el.style.display=showFox?'':'none');
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────────
+function sv(id,v){document.getElementById(id).textContent=(v!=null)?v:'—';}
+function oor(id,s){document.getElementById(id).style.display=s?'':'none';}
+
+function update(){
+  if(mode==='wt'){
+    const s=specAt(wLbs),f=foxAt(wLbs);
+    sv('sPsi',s?s[0]:null);sv('sReb',s?s[2]:null);
+    sv('fSj15Psi',s?s[1]:null);sv('fSj15Reb',s?s[3]:null);
+    sv('fFoxPsi',f?f.psi:null);sv('fFoxReb',f?f.c:null);
+    oor('sOor',!s);oor('fSj15Oor',!s);oor('fFoxOor',!f);
+    document.getElementById('riderIn').classList.toggle('oor-err',!s||!f);
+    if(s){spsi=s[0];fpsi=s[1];}
+    if(f)fpsi=f.psi;
+  } else {
+    sv('sPsi',spsi);sv('sReb',nearestReb(0,2,spsi));
+    sv('fSj15Psi',fpsi);sv('fSj15Reb',nearestReb(1,3,fpsi));
+    sv('fFoxPsi',fpsi);sv('fFoxReb',foxRebByPsi(fpsi));
+    oor('sOor',false);oor('fSj15Oor',false);oor('fFoxOor',false);
+  }
+  if(SC){
+    const inRange=mode==='psi'||specAt(wLbs)!==null;
+    SC.setMarker(inRange?(sXMode==='wt'?toDispX(wLbs):spsi):null);
+  }
+  if(FC){
+    const inRange=mode==='psi'||specAt(wLbs)!==null||foxAt(wLbs)!==null;
+    FC.setMarker(inRange?(fXMode==='wt'?toDispX(wLbs):fpsi):null);
+  }
+  if(SC||FC)updateLegends(null,null);
+  saveState();
+}
+
+function setMode(m){
+  mode=m;
+  sXMode=m;fXMode=m;
+  document.getElementById('mWt').style.display=m==='wt'?'':'none';
+  document.getElementById('mPsi').style.display=m==='psi'?'':'none';
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const on=(i===0&&m==='wt')||(i===1&&m==='psi');
+    t.classList.toggle('on',on);
+    t.setAttribute('aria-selected',String(on));
+  });
+  document.body.classList.toggle('mode-psi',m==='psi');
+  if(m==='psi'){document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
+  refreshCharts();update();
+}
+
+function setUnit(u){
+  unit=u;
+  const rEl=document.getElementById('riderIn'),gEl=document.getElementById('gearIn');
+  if(u==='kg'){
+    rEl.min=(50/LBS_PER_KG).toFixed(1);rEl.max=(280/LBS_PER_KG).toFixed(1);rEl.step='0.5';
+    gEl.max=(100/LBS_PER_KG).toFixed(1);gEl.step='0.5';
+  } else {
+    rEl.min='50';rEl.max='280';rEl.step='1';
+    gEl.max='100';gEl.step='1';
+  }
+  document.getElementById('bLbs').classList.toggle('on',u==='lbs');
+  document.getElementById('bKg').classList.toggle('on',u==='kg');
+  document.getElementById('bLbs').setAttribute('aria-pressed',String(u==='lbs'));
+  document.getElementById('bKg').setAttribute('aria-pressed',String(u==='kg'));
+  rEl.value=u==='kg'?(riderLbs/LBS_PER_KG).toFixed(1):Math.round(riderLbs);
+  gEl.value=u==='kg'?(gearLbs/LBS_PER_KG).toFixed(1):Math.round(gearLbs);
+  document.getElementById('totalDisp').textContent='= '+(u==='kg'?(wLbs/LBS_PER_KG).toFixed(1)+' kg':Math.round(wLbs)+' lbs');
+  refreshCharts();update();
+}
+
+function onWt(){
+  const rv=parseFloat(document.getElementById('riderIn').value),gv=parseFloat(document.getElementById('gearIn').value);
+  if(!isNaN(rv))riderLbs=unit==='kg'?rv*LBS_PER_KG:rv;
+  if(!isNaN(gv))gearLbs=unit==='kg'?gv*LBS_PER_KG:gv;
+  wLbs=riderLbs+gearLbs;
+  document.getElementById('totalDisp').textContent='= '+(unit==='kg'?(wLbs/LBS_PER_KG).toFixed(1)+' kg':Math.round(wLbs)+' lbs');
+  update();
+}
+
+function onPsi(){
+  const sVal=parseFloat(document.getElementById('spIn').value),fVal=parseFloat(document.getElementById('fpIn').value);
+  if(!isNaN(sVal))spsi=sVal;
+  if(!isNaN(fVal))fpsi=fVal;
+  update();
+}
+
+function toggleSeries(w){
+  if(w==='sj15'){
+    showSj15=!showSj15;
+    document.getElementById('tSj15').classList.toggle('on',showSj15);
+    document.getElementById('tSj15').setAttribute('aria-pressed',String(showSj15));
+  } else {
+    showFox=!showFox;
+    document.getElementById('tFoxSer').classList.toggle('on',showFox);
+    document.getElementById('tFoxSer').setAttribute('aria-pressed',String(showFox));
+  }
+  refreshCharts();saveState();
+}
+
+function saveState(){
+  try{localStorage.setItem('sj15',JSON.stringify({riderLbs,gearLbs,unit,spsi,fpsi,mode,showSj15,showFox}));}catch(e){}
+}
+function loadState(){
+  try{
+    const d=JSON.parse(localStorage.getItem('sj15')||'{}');
+    if(d.riderLbs>0)riderLbs=d.riderLbs;
+    else if(d.wLbs>0)riderLbs=d.wLbs;
+    if(d.gearLbs>=0&&d.gearLbs!=null)gearLbs=d.gearLbs;
+    wLbs=riderLbs+gearLbs;
+    if(d.unit)unit=d.unit;
+    if(d.spsi>0)spsi=d.spsi;
+    if(d.fpsi>0)fpsi=d.fpsi;
+    if(d.mode)mode=d.mode;
+    if(d.showSj15!=null)showSj15=d.showSj15;
+    if(d.showFox!=null)showFox=d.showFox;
+  }catch(e){}
+}
+
+window.addEventListener('load',()=>{
+  loadState();
+  sXMode=mode; fXMode=mode;
+  document.getElementById('sOor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
+  document.getElementById('fSj15Oor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
+  document.getElementById('fFoxOor').textContent=`out of range (${FOX_MIN_LBS}–${FOX_MAX_LBS} lbs)`;
+  setUnit(unit);
+  setMode(mode);
+  document.getElementById('tSj15').classList.toggle('on',showSj15);
+  document.getElementById('tFoxSer').classList.toggle('on',showFox);
+  document.getElementById('tSj15').setAttribute('aria-pressed',String(showSj15));
+  document.getElementById('tFoxSer').setAttribute('aria-pressed',String(showFox));
+  initCharts();
+  update();
+});
+
+let _resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(()=>{if(SC){SC.resize();FC.resize();}},150);
+});
+</script>
+</body>
+</html>
