@@ -42,6 +42,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',system-ui,s
 .vk{font-size:11px;color:#696663;min-width:54px}
 .vn{font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1}
 .vu{font-size:11px;color:#696663}
+.vn-sec{font-size:15px;font-weight:400;color:#B0ABA5;letter-spacing:-.3px;line-height:1;display:none}
+.vn-sec::before{content:' / ';color:#C8C3BD;font-weight:300;font-size:14px}
 .oor{font-size:11px;color:#696663;font-style:italic;margin-top:4px}
 .c-shock{color:#6366F1}.c-sj15{color:#10B981}.c-fox{color:#F97316}
 .chart-card{background:#fff;border-radius:16px;padding:18px 18px 14px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04)}
@@ -138,8 +140,8 @@ body.mode-psi .psi-row{display:none}
   <div class="cards-row">
     <div class="card" aria-live="polite">
       <div class="card-label">Genie FLOAT</div>
-      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-shock" id="sPsi">—</span><span class="vu">psi</span></div>
-      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-shock" id="sReb">—</span><span class="vu">clicks</span></div>
+      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-shock" id="sPsi">—</span><span class="vn-sec" id="sPsiB"></span><span class="vu">psi</span></div>
+      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-shock" id="sReb">—</span><span class="vn-sec" id="sRebB"></span><span class="vu">clicks</span></div>
       <div class="oor" id="sOor" style="display:none"></div>
     </div>
   </div>
@@ -161,14 +163,14 @@ body.mode-psi .psi-row{display:none}
   <div class="cards-row">
     <div class="card" aria-live="polite">
       <div class="card-label">Fox Rhythm · SJ15</div>
-      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-sj15" id="fSj15Psi">—</span><span class="vu">psi</span></div>
-      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-sj15" id="fSj15Reb">—</span><span class="vu">clicks</span></div>
+      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-sj15" id="fSj15Psi">—</span><span class="vn-sec" id="fSj15PsiB"></span><span class="vu">psi</span></div>
+      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-sj15" id="fSj15Reb">—</span><span class="vn-sec" id="fSj15RebB"></span><span class="vu">clicks</span></div>
       <div class="oor" id="fSj15Oor" style="display:none"></div>
     </div>
     <div class="card" aria-live="polite">
       <div class="card-label">Fox Rhythm · Fox</div>
-      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-fox" id="fFoxPsi">—</span><span class="vu">psi</span></div>
-      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-fox" id="fFoxReb">—</span><span class="vu">clicks</span></div>
+      <div class="val-row psi-row"><span class="vk">Pressure</span><span class="vn c-fox" id="fFoxPsi">—</span><span class="vn-sec" id="fFoxPsiB"></span><span class="vu">psi</span></div>
+      <div class="val-row"><span class="vk">Rebound</span><span class="vn c-fox" id="fFoxReb">—</span><span class="vn-sec" id="fFoxRebB"></span><span class="vu">clicks</span></div>
       <div class="oor" id="fFoxOor" style="display:none"></div>
     </div>
   </div>
@@ -227,9 +229,31 @@ let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=165,fpsi=70,sXMod
 
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
 function specAt(lbs){const w=Math.round(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC[w-SPEC_MIN_LBS]:null;}
-function foxAt(lbs){for(const r of FOX)if(lbs>=r[0]&&lbs<r[1])return{psi:r[2],c:r[3]};return null;}
+function foxAt(lbs){for(let i=0;i<FOX.length;i++){const r=FOX[i];if(lbs>=r[0]&&lbs<r[1]){const sec=(lbs===r[0]&&i>0)?{psi:FOX[i-1][2],c:FOX[i-1][3]}:null;return{psi:r[2],c:r[3],sec};}}return null;}
 function nearestReb(pi,ri,psi){const pts=uniqByPsi(pi,ri);let b=pts[0],bd=Infinity;for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}return b.y;}
 function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}return b[3];}
+function psiOpts(pi,ri,psi){
+  const pts=uniqByPsi(pi,ri);
+  let b=pts[0],bd=Infinity;
+  for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}
+  // Check if exact PSI has conflicting clicks in raw data
+  const raw={};for(const r of SPEC)if(r[pi]===psi)raw[r[ri]]=(raw[r[ri]]||0)+1;
+  const rawKeys=Object.keys(raw).map(Number);
+  if(rawKeys.length>1){const sec=rawKeys.find(c=>c!==b.y);return{primary:b.y,secondary:sec??null};}
+  if(b.x===psi)return{primary:b.y,secondary:null};
+  // Not exact: find second nearest, show if clicks differ
+  let b2=null,bd2=Infinity;
+  for(const p of pts){if(p===b)continue;const d=Math.abs(p.x-psi);if(d<bd2){bd2=d;b2=p;}}
+  return{primary:b.y,secondary:(b2&&b2.y!==b.y)?b2.y:null};
+}
+function foxRebOpts(psi){
+  let b=FOX[0],bd=Infinity;
+  for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}
+  if(b[2]===psi)return{primary:b[3],secondary:null};
+  let b2=null,bd2=Infinity;
+  for(const r of FOX){if(r===b)continue;const d=Math.abs(r[2]-psi);if(d<bd2){bd2=d;b2=r;}}
+  return{primary:b[3],secondary:(b2&&b2[3]!==b[3])?b2[3]:null};
+}
 
 // ── DATASET BUILDERS ─────────────────────────────────────────────────────────
 function toDispX(lbs){return unit==='kg'?lbs/LBS_PER_KG:lbs;}
@@ -522,22 +546,36 @@ function updateLegends(shx,fhx){
 
 // ── UI ────────────────────────────────────────────────────────────────────────
 function sv(id,v){document.getElementById(id).textContent=(v!=null)?v:'—';}
+function svv(id,primary,secondary){
+  document.getElementById(id).textContent=(primary!=null)?primary:'—';
+  const s=document.getElementById(id+'B');
+  if(s){s.style.display=secondary!=null?'inline':'none';if(secondary!=null)s.textContent=secondary;}
+}
 function oor(id,s){document.getElementById(id).style.display=s?'':'none';}
 
 function update(){
   if(mode==='wt'){
     const s=specAt(wLbs),f=foxAt(wLbs);
-    sv('sPsi',s?s[0]:null);sv('sReb',s?s[2]:null);
-    sv('fSj15Psi',s?s[1]:null);sv('fSj15Reb',s?s[3]:null);
-    sv('fFoxPsi',f?f.psi:null);sv('fFoxReb',f?f.c:null);
+    svv('sPsi',s?s[0]:null,null);
+    svv('sReb',s?s[2]:null,null);
+    svv('fSj15Psi',s?s[1]:null,null);
+    svv('fSj15Reb',s?s[3]:null,null);
+    svv('fFoxPsi',f?f.psi:null,f?.sec?.psi??null);
+    svv('fFoxReb',f?f.c:null,f?.sec?.c??null);
     oor('sOor',!s);oor('fSj15Oor',!s);oor('fFoxOor',!f);
     document.getElementById('riderIn').classList.toggle('oor-err',!s||!f);
     if(s){spsi=s[0];fpsi=s[1];}
     if(f)fpsi=f.psi;
   } else {
-    sv('sPsi',spsi);sv('sReb',nearestReb(0,2,spsi));
-    sv('fSj15Psi',fpsi);sv('fSj15Reb',nearestReb(1,3,fpsi));
-    sv('fFoxPsi',fpsi);sv('fFoxReb',foxRebByPsi(fpsi));
+    const sOpts=psiOpts(0,2,spsi);
+    const fOpts=psiOpts(1,3,fpsi);
+    const foxOpts=foxRebOpts(fpsi);
+    svv('sPsi',spsi,null);
+    svv('sReb',sOpts.primary,sOpts.secondary);
+    svv('fSj15Psi',fpsi,null);
+    svv('fSj15Reb',fOpts.primary,fOpts.secondary);
+    svv('fFoxPsi',fpsi,null);
+    svv('fFoxReb',foxOpts.primary,foxOpts.secondary);
     oor('sOor',false);oor('fSj15Oor',false);oor('fFoxOor',false);
   }
   if(SC){
