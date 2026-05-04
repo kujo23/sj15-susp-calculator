@@ -203,7 +203,7 @@ let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=165,fpsi=70,sXMod
 function specAt(lbs){const w=Math.round(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC[w-SPEC_MIN_LBS]:null;}
 function foxAt(lbs){for(const r of FOX)if(lbs>=r[0]&&lbs<r[1])return{psi:r[2],c:r[3]};return null;}
 function nearestReb(pi,ri,psi){const pts=uniqByPsi(pi,ri);let b=pts[0],bd=Infinity;for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}return b.y;}
-function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]<b[2])){bd=d;b=r;}}return b[3];}
+function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}return b[3];}
 
 // ── DATASET BUILDERS ─────────────────────────────────────────────────────────
 function toDispX(lbs){return unit==='kg'?lbs/LBS_PER_KG:lbs;}
