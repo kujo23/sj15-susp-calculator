@@ -206,7 +206,7 @@ body.mode-psi .psi-row{display:none}
       <div class="chart-tgroups">
         <div class="tgrp">
           <button type="button" class="tbtn on" id="tSj15" aria-pressed="true" onclick="toggleSeries('sj15')">SJ15</button>
-          <button type="button" class="tbtn on" id="tFoxSer" aria-pressed="true" onclick="toggleSeries('fox')">Fox data</button>
+          <button type="button" class="tbtn on" id="tFoxSer" aria-pressed="true" onclick="toggleSeries('fox')">Fox</button>
         </div>
       </div>
     </div>
@@ -219,7 +219,7 @@ body.mode-psi .psi-row{display:none}
     <canvas class="mc" id="fC" aria-label="Fork pressure and rebound vs rider weight chart"></canvas>
     <div class="chart-legend">
       <div class="leg"><div class="leg-dot" style="background:#10B981"></div><span class="leg-name">SJ15</span><span class="leg-val" id="fLegSj15">—</span></div>
-      <div class="leg"><div class="leg-dot" style="background:#F97316"></div><span class="leg-name">Fox data</span><span class="leg-val" id="fLegFox">—</span></div>
+      <div class="leg"><div class="leg-dot" style="background:#F97316"></div><span class="leg-name">Fox</span><span class="leg-val" id="fLegFox">—</span></div>
       <div class="tgrp" style="margin-left:auto"><button type="button" class="tbtn" id="tblBtnF" onclick="toggleTable('f')">Table</button></div>
     </div>
     <div class="chart-table-wrap" id="fTblWrap" style="display:none"><div class="data-tbl"></div></div>
@@ -251,7 +251,13 @@ const LBS_PER_KG   = 2.20462;
 const SPEC_MIN_LBS = 101;
 const SPEC_MAX_LBS = SPEC_MIN_LBS + SPEC.length - 1; // 240
 const FOX_MIN_LBS  = FOX[0][0];                       // 120
-const FOX_MAX_LBS  = FOX[FOX.length - 1][1];          // 251
+const FOX_MAX_LBS  = FOX[FOX.length - 1][1] - 1;      // 250 (foxAt uses lbs<r[1], so 251 is OOR)
+const SHOCK_SPEC_PSI_MIN = Math.min(...SPEC.map(r=>r[0]));  // 96
+const SHOCK_SPEC_PSI_MAX = Math.max(...SPEC.map(r=>r[0]));  // 268
+const FORK_SPEC_PSI_MIN  = Math.min(...SPEC.map(r=>r[1]));  // 45
+const FORK_SPEC_PSI_MAX  = Math.max(...SPEC.map(r=>r[1]));  // 104
+const FORK_FOX_PSI_MIN   = Math.min(...FOX.map(r=>r[2]));   // 55
+const FORK_FOX_PSI_MAX   = Math.max(...FOX.map(r=>r[2]));   // 106
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=171,fpsi=75,sXMode='wt',fXMode='wt',showSj15=true,showFox=true;
@@ -553,6 +559,12 @@ function fmtLeg(chart,sid,hx,defX,xMode){
     if(sid==='sj15'&&!specAt(lbs))return'—';
     if(sid==='fox'&&!foxAt(lbs))return'—';
   }
+  if(xMode==='psi'){
+    const p=hx!=null?hx:(sid==='s'?spsi:fpsi);
+    if(sid==='s'&&(p<SHOCK_SPEC_PSI_MIN||p>SHOCK_SPEC_PSI_MAX))return'—';
+    if(sid==='sj15'&&(p<FORK_SPEC_PSI_MIN||p>FORK_SPEC_PSI_MAX))return'—';
+    if(sid==='fox'&&(p<FORK_FOX_PSI_MIN||p>FORK_FOX_PSI_MAX))return'—';
+  }
   const x=hx!=null?hx:defX;
   const psi=chart.getValsAt(x,sid,'L');
   const reb=chart.getValsAt(x,sid,'R');
@@ -674,7 +686,20 @@ function svv(id,primary,secondary){
 }
 function oor(id,s){document.getElementById(id).style.display=s?'':'none';}
 
+function setOorLabels(){
+  if(mode==='wt'){
+    document.getElementById('sOor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
+    document.getElementById('fSj15Oor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
+    document.getElementById('fFoxOor').textContent=`out of range (${FOX_MIN_LBS}–${FOX_MAX_LBS} lbs)`;
+  } else {
+    document.getElementById('sOor').textContent=`out of range (${SHOCK_SPEC_PSI_MIN}–${SHOCK_SPEC_PSI_MAX} psi)`;
+    document.getElementById('fSj15Oor').textContent=`out of range (${FORK_SPEC_PSI_MIN}–${FORK_SPEC_PSI_MAX} psi)`;
+    document.getElementById('fFoxOor').textContent=`out of range (${FORK_FOX_PSI_MIN}–${FORK_FOX_PSI_MAX} psi)`;
+  }
+}
+
 function update(){
+  setOorLabels();
   if(mode==='wt'){
     const s=specAt(wLbs),f=foxAt(wLbs);
     svv('sPsi',s?s[0]:null,null);
@@ -688,23 +713,26 @@ function update(){
     if(s){spsi=s[0];fpsi=s[1];}
     if(f)fpsi=f.psi;
   } else {
-    const sOpts=psiOpts(0,2,spsi);
-    const fOpts=psiOpts(1,3,fpsi);
-    const foxOpts=foxRebOpts(fpsi);
-    svv('sPsi',spsi,null);
+    const sIn=spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX;
+    const fSpecIn=fpsi>=FORK_SPEC_PSI_MIN&&fpsi<=FORK_SPEC_PSI_MAX;
+    const fFoxIn=fpsi>=FORK_FOX_PSI_MIN&&fpsi<=FORK_FOX_PSI_MAX;
+    const sOpts=sIn?psiOpts(0,2,spsi):{primary:null,secondary:null};
+    const fOpts=fSpecIn?psiOpts(1,3,fpsi):{primary:null,secondary:null};
+    const foxOpts=fFoxIn?foxRebOpts(fpsi):{primary:null,secondary:null};
+    svv('sPsi',sIn?spsi:null,null);
     svv('sReb',sOpts.primary,sOpts.secondary);
-    svv('fSj15Psi',fpsi,null);
+    svv('fSj15Psi',fSpecIn?fpsi:null,null);
     svv('fSj15Reb',fOpts.primary,fOpts.secondary);
-    svv('fFoxPsi',fpsi,null);
+    svv('fFoxPsi',fFoxIn?fpsi:null,null);
     svv('fFoxReb',foxOpts.primary,foxOpts.secondary);
-    oor('sOor',false);oor('fSj15Oor',false);oor('fFoxOor',false);
+    oor('sOor',!sIn);oor('fSj15Oor',!fSpecIn);oor('fFoxOor',!fFoxIn);
   }
   if(SC){
-    const inRange=mode==='psi'||specAt(wLbs)!==null;
+    const inRange=mode==='psi'?(spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX):specAt(wLbs)!==null;
     SC.setMarker(inRange?(sXMode==='wt'?toDispX(wLbs):spsi):null);
   }
   if(FC){
-    const inRange=mode==='psi'||specAt(wLbs)!==null||foxAt(wLbs)!==null;
+    const inRange=mode==='psi'?((fpsi>=FORK_SPEC_PSI_MIN&&fpsi<=FORK_SPEC_PSI_MAX)||(fpsi>=FORK_FOX_PSI_MIN&&fpsi<=FORK_FOX_PSI_MAX)):(specAt(wLbs)!==null||foxAt(wLbs)!==null);
     FC.setMarker(inRange?(fXMode==='wt'?toDispX(wLbs):fpsi):null);
   }
   if(SC||FC)updateLegends(null,null);
@@ -850,9 +878,6 @@ function loadState(){
 window.addEventListener('load',()=>{
   loadState();
   sXMode=mode; fXMode=mode;
-  document.getElementById('sOor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
-  document.getElementById('fSj15Oor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
-  document.getElementById('fFoxOor').textContent=`out of range (${FOX_MIN_LBS}–${FOX_MAX_LBS} lbs)`;
   setUnit(unit);
   setMode(mode);
   document.getElementById('tSj15').classList.toggle('on',showSj15);
