@@ -559,6 +559,12 @@ function fmtLeg(chart,sid,hx,defX,xMode){
     if(sid==='sj15'&&!specAt(lbs))return'—';
     if(sid==='fox'&&!foxAt(lbs))return'—';
   }
+  if(xMode==='psi'){
+    const p=hx!=null?hx:(sid==='s'?spsi:fpsi);
+    if(sid==='s'&&(p<SHOCK_SPEC_PSI_MIN||p>SHOCK_SPEC_PSI_MAX))return'—';
+    if(sid==='sj15'&&(p<FORK_SPEC_PSI_MIN||p>FORK_SPEC_PSI_MAX))return'—';
+    if(sid==='fox'&&(p<FORK_FOX_PSI_MIN||p>FORK_FOX_PSI_MAX))return'—';
+  }
   const x=hx!=null?hx:defX;
   const psi=chart.getValsAt(x,sid,'L');
   const reb=chart.getValsAt(x,sid,'R');
