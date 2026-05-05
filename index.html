@@ -84,14 +84,18 @@ body.mode-psi .psi-row{display:none}
 .defaults-row{display:flex;gap:14px;align-items:center;margin-top:-22px;margin-bottom:28px}
 .def-btn{font-size:11px;font-weight:500;color:#A0998F;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;transition:color .15s}
 .def-btn:hover{color:#1A1917}
-.chart-table-wrap{margin-top:14px;border-top:1px solid #E8E6E2;padding-top:10px;max-height:240px;overflow-y:auto;overflow-x:auto}
-.data-tbl{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
-.data-tbl th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#696663;text-align:right;padding:4px 8px 5px;position:sticky;top:0;background:#fff;z-index:1;white-space:nowrap}
-.data-tbl th:first-child{text-align:left;padding-left:2px}
-.data-tbl td{padding:4px 8px;text-align:right;color:#1A1917;white-space:nowrap;font-weight:500;border-top:1px solid #F2F1EE}
-.data-tbl td:first-child{text-align:left;padding-left:2px;color:#696663;font-weight:400}
-.data-tbl tr.tbl-hi td{background:#F5F4FF}
-.data-tbl tr.tbl-hi td:first-child{color:#6366F1;font-weight:600}
+.chart-table-wrap{margin-top:14px;border-top:1px solid #E8E6E2;padding-top:10px;max-height:240px;overflow-x:auto;display:flex;flex-direction:column}
+.data-tbl{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;font-size:11px;font-variant-numeric:tabular-nums}
+.dtbl-head{flex-shrink:0;background:#fff;border-bottom:1.5px solid #E8E6E2}
+.dtbl-scroll{flex:1;min-height:0;overflow-y:auto}
+.dtbl-row{display:flex}
+.dtbl-cell{flex:1;min-width:0;padding:4px 8px;text-align:right;color:#1A1917;white-space:nowrap;font-weight:500}
+.dtbl-cell:last-child{padding-right:18px}
+.dtbl-cell:first-child{flex:2;text-align:left;padding-left:2px;color:#696663;font-weight:400}
+.dtbl-head .dtbl-cell{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#696663;padding-bottom:5px}
+.dtbl-scroll .dtbl-row+.dtbl-row .dtbl-cell{border-top:1px solid #F2F1EE}
+.dtbl-row.tbl-hi .dtbl-cell{background:#F5F4FF}
+.dtbl-row.tbl-hi .dtbl-cell:first-child{color:#6366F1;font-weight:600}
 </style>
 </head>
 <body>
@@ -167,12 +171,6 @@ body.mode-psi .psi-row{display:none}
     </div>
   </div>
   <div class="chart-card">
-    <div class="chart-toolbar">
-      <div></div>
-      <div class="chart-tgroups">
-        <div class="tgrp"><button type="button" class="tbtn" id="tblBtnS" onclick="toggleTable('s')">Table</button></div>
-      </div>
-    </div>
     <div class="chart-axis-hint" id="sHint">
       <span class="axis-hint"><span class="hint-line-solid" style="background:#6366F1"></span>pressure (psi)</span>
       <span class="axis-hint"><span class="hint-line-dashed" style="border-color:#A5B4FC"></span>rebound (clicks)</span>
@@ -180,8 +178,9 @@ body.mode-psi .psi-row{display:none}
     <canvas class="mc" id="sC" aria-label="Shock pressure and rebound vs rider weight chart"></canvas>
     <div class="chart-legend">
       <div class="leg"><div class="leg-dot" style="background:#6366F1"></div><span class="leg-name">Genie FLOAT</span><span class="leg-val" id="sLeg">—</span></div>
+      <div class="tgrp" style="margin-left:auto"><button type="button" class="tbtn" id="tblBtnS" onclick="toggleTable('s')">Table</button></div>
     </div>
-    <div class="chart-table-wrap" id="sTblWrap" style="display:none"><table class="data-tbl"></table></div>
+    <div class="chart-table-wrap" id="sTblWrap" style="display:none"><div class="data-tbl"></div></div>
   </div>
 </div>
 
@@ -209,7 +208,6 @@ body.mode-psi .psi-row{display:none}
           <button type="button" class="tbtn on" id="tSj15" aria-pressed="true" onclick="toggleSeries('sj15')">SJ15</button>
           <button type="button" class="tbtn on" id="tFoxSer" aria-pressed="true" onclick="toggleSeries('fox')">Fox data</button>
         </div>
-        <div class="tgrp"><button type="button" class="tbtn" id="tblBtnF" onclick="toggleTable('f')">Table</button></div>
       </div>
     </div>
     <div class="chart-axis-hint" id="fHint">
@@ -222,8 +220,9 @@ body.mode-psi .psi-row{display:none}
     <div class="chart-legend">
       <div class="leg"><div class="leg-dot" style="background:#10B981"></div><span class="leg-name">SJ15</span><span class="leg-val" id="fLegSj15">—</span></div>
       <div class="leg"><div class="leg-dot" style="background:#F97316"></div><span class="leg-name">Fox data</span><span class="leg-val" id="fLegFox">—</span></div>
+      <div class="tgrp" style="margin-left:auto"><button type="button" class="tbtn" id="tblBtnF" onclick="toggleTable('f')">Table</button></div>
     </div>
-    <div class="chart-table-wrap" id="fTblWrap" style="display:none"><table class="data-tbl"></table></div>
+    <div class="chart-table-wrap" id="fTblWrap" style="display:none"><div class="data-tbl"></div></div>
   </div>
 </div>
 
@@ -609,53 +608,53 @@ function renderShockTable(){
   const el=document.getElementById('sTblWrap');if(!el)return;
   if(!showSTbl){el.style.display='none';return;}
   el.style.display='';
-  const t=el.querySelector('table');
+  const t=el.querySelector('.data-tbl');
   if(mode==='wt'){
     const rows=shockWtRows(),wR=Math.round(wLbs);
-    let h='<thead><tr><th>Weight</th><th>PSI</th><th>Rebound</th></tr></thead><tbody>';
-    rows.forEach(r=>{h+=`<tr class="${wR>=r.wMin&&wR<=r.wMax?'tbl-hi':''}"><td>${fmtWR(r.wMin,r.wMax)}</td><td>${r.psi}</td><td>${r.reb}</td></tr>`;});
-    t.innerHTML=h+'</tbody>';
+    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight</div><div class="dtbl-cell">PSI</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">';
+    rows.forEach(r=>{h+=`<div class="dtbl-row${wR>=r.wMin&&wR<=r.wMax?' tbl-hi':''}"><div class="dtbl-cell">${fmtWR(r.wMin,r.wMax)}</div><div class="dtbl-cell">${r.psi}</div><div class="dtbl-cell">${r.reb}</div></div>`;});
+    t.innerHTML=h+'</div>';
   } else {
     const pts=uniqByPsi(0,2),nx=nearPSI(pts.map(p=>p.x),spsi);
-    let h='<thead><tr><th>PSI</th><th>Rebound</th></tr></thead><tbody>';
-    pts.forEach(p=>{h+=`<tr class="${p.x===nx?'tbl-hi':''}"><td>${p.x}</td><td>${p.y}</td></tr>`;});
-    t.innerHTML=h+'</tbody>';
+    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">PSI</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">';
+    pts.forEach(p=>{h+=`<div class="dtbl-row${p.x===nx?' tbl-hi':''}"><div class="dtbl-cell">${p.x}</div><div class="dtbl-cell">${p.y}</div></div>`;});
+    t.innerHTML=h+'</div>';
   }
 }
 function renderForkTable(){
   const el=document.getElementById('fTblWrap');if(!el)return;
   if(!showFTbl){el.style.display='none';return;}
   el.style.display='';
-  const t=el.querySelector('table');
+  const t=el.querySelector('.data-tbl');
   if(mode==='wt'){
     const rows=forkWtRows(),wR=Math.round(wLbs);
-    let h='<thead><tr><th>Weight</th>';
-    if(showSj15)h+='<th>SJ15 PSI</th><th>SJ15 Reb</th>';
-    if(showFox)h+='<th>Fox PSI</th><th>Fox Reb</th>';
-    h+='</tr></thead><tbody>';
+    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight</div>';
+    if(showSj15)h+='<div class="dtbl-cell">SJ15 PSI</div><div class="dtbl-cell">SJ15 Rebound</div>';
+    if(showFox)h+='<div class="dtbl-cell">Fox PSI</div><div class="dtbl-cell">Fox Rebound</div>';
+    h+='</div></div><div class="dtbl-scroll">';
     rows.forEach(r=>{
-      let c=`<td>${fmtWR(r.wMin,r.wMax)}</td>`;
-      if(showSj15)c+=`<td>${r.sp}</td><td>${r.sr}</td>`;
-      if(showFox)c+=`<td>${r.fp??'—'}</td><td>${r.fr??'—'}</td>`;
-      h+=`<tr class="${wR>=r.wMin&&wR<=r.wMax?'tbl-hi':''}">${c}</tr>`;
+      let c=`<div class="dtbl-cell">${fmtWR(r.wMin,r.wMax)}</div>`;
+      if(showSj15)c+=`<div class="dtbl-cell">${r.sp}</div><div class="dtbl-cell">${r.sr}</div>`;
+      if(showFox)c+=`<div class="dtbl-cell">${r.fp??'—'}</div><div class="dtbl-cell">${r.fr??'—'}</div>`;
+      h+=`<div class="dtbl-row${wR>=r.wMin&&wR<=r.wMax?' tbl-hi':''}">${c}</div>`;
     });
-    t.innerHTML=h+'</tbody>';
+    t.innerHTML=h+'</div>';
   } else {
     const sj15=uniqByPsi(1,3),fox=FOX.map(r=>({x:r[2],y:r[3]}));
     const allX=new Set([...(showSj15?sj15:[]).map(p=>p.x),...(showFox?fox:[]).map(p=>p.x)]);
     const sorted=[...allX].sort((a,b)=>a-b);
     const nx=sorted.length?nearPSI(sorted,fpsi):null;
-    let h='<thead><tr><th>PSI</th>';
-    if(showSj15)h+='<th>SJ15 Reb</th>';
-    if(showFox)h+='<th>Fox Reb</th>';
-    h+='</tr></thead><tbody>';
+    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">PSI</div>';
+    if(showSj15)h+='<div class="dtbl-cell">SJ15 Rebound</div>';
+    if(showFox)h+='<div class="dtbl-cell">Fox Rebound</div>';
+    h+='</div></div><div class="dtbl-scroll">';
     sorted.forEach(p=>{
-      let c=`<td>${p}</td>`;
-      if(showSj15)c+=`<td>${(sj15.find(pt=>pt.x===p)||{y:'—'}).y}</td>`;
-      if(showFox)c+=`<td>${(fox.find(pt=>pt.x===p)||{y:'—'}).y}</td>`;
-      h+=`<tr class="${p===nx?'tbl-hi':''}">${c}</tr>`;
+      let c=`<div class="dtbl-cell">${p}</div>`;
+      if(showSj15)c+=`<div class="dtbl-cell">${(sj15.find(pt=>pt.x===p)||{y:'—'}).y}</div>`;
+      if(showFox)c+=`<div class="dtbl-cell">${(fox.find(pt=>pt.x===p)||{y:'—'}).y}</div>`;
+      h+=`<div class="dtbl-row${p===nx?' tbl-hi':''}">${c}</div>`;
     });
-    t.innerHTML=h+'</tbody>';
+    t.innerHTML=h+'</div>';
   }
 }
 function toggleTable(which){
@@ -663,7 +662,7 @@ function toggleTable(which){
   else{showFTbl=!showFTbl;document.getElementById('tblBtnF').classList.toggle('on',showFTbl);}
   renderShockTable();renderForkTable();
   const wrapId=which==='s'?'sTblWrap':'fTblWrap',open=which==='s'?showSTbl:showFTbl;
-  if(open){const wrap=document.getElementById(wrapId),row=wrap.querySelector('.tbl-hi');if(row)wrap.scrollTop=row.offsetTop-wrap.clientHeight/2;}
+  if(open){const wrap=document.getElementById(wrapId),scrollEl=wrap.querySelector('.dtbl-scroll'),row=scrollEl?.querySelector('.tbl-hi');if(scrollEl&&row){const cr=scrollEl.getBoundingClientRect(),rr=row.getBoundingClientRect();scrollEl.scrollTop+=rr.top-cr.top-(scrollEl.clientHeight-row.clientHeight)/2;}}
 }
 
 // ── UI ────────────────────────────────────────────────────────────────────────
@@ -725,6 +724,9 @@ function setMode(m){
   });
   document.body.classList.toggle('mode-psi',m==='psi');
   if(m==='psi'){document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
+  showSTbl=false;showFTbl=false;
+  document.getElementById('tblBtnS').classList.remove('on');
+  document.getElementById('tblBtnF').classList.remove('on');
   refreshCharts();update();
 }
 
