@@ -90,6 +90,7 @@ body.mode-psi .psi-row{display:none}
 .dtbl-scroll{flex:1;min-height:0;overflow-y:auto}
 .dtbl-row{display:flex}
 .dtbl-cell{flex:1;min-width:0;padding:4px 8px;text-align:right;color:#1A1917;white-space:nowrap;font-weight:500}
+.dtbl-cell:last-child{padding-right:18px}
 .dtbl-cell:first-child{flex:2;text-align:left;padding-left:2px;color:#696663;font-weight:400}
 .dtbl-head .dtbl-cell{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#696663;padding-bottom:5px}
 .dtbl-scroll .dtbl-row+.dtbl-row .dtbl-cell{border-top:1px solid #F2F1EE}
@@ -628,8 +629,8 @@ function renderForkTable(){
   if(mode==='wt'){
     const rows=forkWtRows(),wR=Math.round(wLbs);
     let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight</div>';
-    if(showSj15)h+='<div class="dtbl-cell">SJ15 PSI</div><div class="dtbl-cell">SJ15 Reb</div>';
-    if(showFox)h+='<div class="dtbl-cell">Fox PSI</div><div class="dtbl-cell">Fox Reb</div>';
+    if(showSj15)h+='<div class="dtbl-cell">SJ15 PSI</div><div class="dtbl-cell">SJ15 Rebound</div>';
+    if(showFox)h+='<div class="dtbl-cell">Fox PSI</div><div class="dtbl-cell">Fox Rebound</div>';
     h+='</div></div><div class="dtbl-scroll">';
     rows.forEach(r=>{
       let c=`<div class="dtbl-cell">${fmtWR(r.wMin,r.wMax)}</div>`;
@@ -644,8 +645,8 @@ function renderForkTable(){
     const sorted=[...allX].sort((a,b)=>a-b);
     const nx=sorted.length?nearPSI(sorted,fpsi):null;
     let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">PSI</div>';
-    if(showSj15)h+='<div class="dtbl-cell">SJ15 Reb</div>';
-    if(showFox)h+='<div class="dtbl-cell">Fox Reb</div>';
+    if(showSj15)h+='<div class="dtbl-cell">SJ15 Rebound</div>';
+    if(showFox)h+='<div class="dtbl-cell">Fox Rebound</div>';
     h+='</div></div><div class="dtbl-scroll">';
     sorted.forEach(p=>{
       let c=`<div class="dtbl-cell">${p}</div>`;
