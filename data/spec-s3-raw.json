@@ -1,0 +1,991 @@
+{
+  "productId": "4221395",
+  "size": "S3",
+  "fetchedAt": "2026-05-06T21:25:23Z",
+  "endpoint": "https://www.specialized.com/api/graphql/GetSuspensionCalculations",
+  "lbsPerKg": 2.20462,
+  "samplingMethod": "mid-bucket: kg = (lb + 0.5) / lbsPerKg",
+  "byLbsNote": "key is the lb bucket the row represents (matches the lb the server returned). The actual API input was kg = (lb + 0.5) / lbsPerKg, not lb.",
+  "byLbs": {
+    "101": {
+      "shockPsi": 95.6,
+      "shockReb": 13,
+      "forkPsi": 45.4,
+      "forkReb": 13,
+      "mass": 45.805
+    },
+    "102": {
+      "shockPsi": 96.8,
+      "shockReb": 13,
+      "forkPsi": 45.8,
+      "forkReb": 13,
+      "mass": 46.259
+    },
+    "103": {
+      "shockPsi": 98.0,
+      "shockReb": 13,
+      "forkPsi": 46.2,
+      "forkReb": 13,
+      "mass": 46.712
+    },
+    "104": {
+      "shockPsi": 99.1,
+      "shockReb": 13,
+      "forkPsi": 46.6,
+      "forkReb": 13,
+      "mass": 47.166
+    },
+    "105": {
+      "shockPsi": 100.3,
+      "shockReb": 13,
+      "forkPsi": 47.0,
+      "forkReb": 13,
+      "mass": 47.619
+    },
+    "106": {
+      "shockPsi": 101.5,
+      "shockReb": 13,
+      "forkPsi": 47.4,
+      "forkReb": 13,
+      "mass": 48.073
+    },
+    "107": {
+      "shockPsi": 102.6,
+      "shockReb": 13,
+      "forkPsi": 47.8,
+      "forkReb": 13,
+      "mass": 48.526
+    },
+    "108": {
+      "shockPsi": 103.8,
+      "shockReb": 13,
+      "forkPsi": 48.2,
+      "forkReb": 13,
+      "mass": 48.98
+    },
+    "109": {
+      "shockPsi": 105.0,
+      "shockReb": 13,
+      "forkPsi": 48.6,
+      "forkReb": 13,
+      "mass": 49.433
+    },
+    "110": {
+      "shockPsi": 106.2,
+      "shockReb": 13,
+      "forkPsi": 49.0,
+      "forkReb": 13,
+      "mass": 49.887
+    },
+    "111": {
+      "shockPsi": 107.3,
+      "shockReb": 13,
+      "forkPsi": 49.4,
+      "forkReb": 13,
+      "mass": 50.34
+    },
+    "112": {
+      "shockPsi": 108.5,
+      "shockReb": 13,
+      "forkPsi": 49.8,
+      "forkReb": 13,
+      "mass": 50.794
+    },
+    "113": {
+      "shockPsi": 109.7,
+      "shockReb": 13,
+      "forkPsi": 50.2,
+      "forkReb": 13,
+      "mass": 51.247
+    },
+    "114": {
+      "shockPsi": 110.8,
+      "shockReb": 13,
+      "forkPsi": 50.6,
+      "forkReb": 13,
+      "mass": 51.701
+    },
+    "115": {
+      "shockPsi": 112.0,
+      "shockReb": 13,
+      "forkPsi": 51.0,
+      "forkReb": 13,
+      "mass": 52.154
+    },
+    "116": {
+      "shockPsi": 113.2,
+      "shockReb": 13,
+      "forkPsi": 51.4,
+      "forkReb": 13,
+      "mass": 52.608
+    },
+    "117": {
+      "shockPsi": 114.3,
+      "shockReb": 13,
+      "forkPsi": 51.8,
+      "forkReb": 13,
+      "mass": 53.061
+    },
+    "118": {
+      "shockPsi": 115.5,
+      "shockReb": 13,
+      "forkPsi": 52.2,
+      "forkReb": 13,
+      "mass": 53.515
+    },
+    "119": {
+      "shockPsi": 116.7,
+      "shockReb": 13,
+      "forkPsi": 52.6,
+      "forkReb": 13,
+      "mass": 53.968
+    },
+    "120": {
+      "shockPsi": 117.9,
+      "shockReb": 13,
+      "forkPsi": 53.0,
+      "forkReb": 13,
+      "mass": 54.422
+    },
+    "121": {
+      "shockPsi": 119.0,
+      "shockReb": 13,
+      "forkPsi": 53.4,
+      "forkReb": 13,
+      "mass": 54.875
+    },
+    "122": {
+      "shockPsi": 120.2,
+      "shockReb": 13,
+      "forkPsi": 53.8,
+      "forkReb": 13,
+      "mass": 55.329
+    },
+    "123": {
+      "shockPsi": 121.4,
+      "shockReb": 13,
+      "forkPsi": 54.2,
+      "forkReb": 13,
+      "mass": 55.782
+    },
+    "124": {
+      "shockPsi": 122.5,
+      "shockReb": 13,
+      "forkPsi": 54.6,
+      "forkReb": 13,
+      "mass": 56.236
+    },
+    "125": {
+      "shockPsi": 123.7,
+      "shockReb": 13,
+      "forkPsi": 55.0,
+      "forkReb": 13,
+      "mass": 56.689
+    },
+    "126": {
+      "shockPsi": 124.9,
+      "shockReb": 13,
+      "forkPsi": 55.4,
+      "forkReb": 13,
+      "mass": 57.143
+    },
+    "127": {
+      "shockPsi": 126.0,
+      "shockReb": 13,
+      "forkPsi": 55.8,
+      "forkReb": 13,
+      "mass": 57.596
+    },
+    "128": {
+      "shockPsi": 127.2,
+      "shockReb": 13,
+      "forkPsi": 56.2,
+      "forkReb": 13,
+      "mass": 58.05
+    },
+    "129": {
+      "shockPsi": 128.4,
+      "shockReb": 13,
+      "forkPsi": 56.6,
+      "forkReb": 13,
+      "mass": 58.503
+    },
+    "130": {
+      "shockPsi": 129.6,
+      "shockReb": 13,
+      "forkPsi": 57.0,
+      "forkReb": 12,
+      "mass": 58.957
+    },
+    "131": {
+      "shockPsi": 130.7,
+      "shockReb": 13,
+      "forkPsi": 57.4,
+      "forkReb": 12,
+      "mass": 59.41
+    },
+    "132": {
+      "shockPsi": 131.9,
+      "shockReb": 13,
+      "forkPsi": 57.8,
+      "forkReb": 12,
+      "mass": 59.864
+    },
+    "133": {
+      "shockPsi": 133.1,
+      "shockReb": 13,
+      "forkPsi": 58.2,
+      "forkReb": 12,
+      "mass": 60.317
+    },
+    "134": {
+      "shockPsi": 134.2,
+      "shockReb": 13,
+      "forkPsi": 58.6,
+      "forkReb": 12,
+      "mass": 60.771
+    },
+    "135": {
+      "shockPsi": 135.4,
+      "shockReb": 12,
+      "forkPsi": 59.0,
+      "forkReb": 12,
+      "mass": 61.224
+    },
+    "136": {
+      "shockPsi": 136.6,
+      "shockReb": 12,
+      "forkPsi": 59.4,
+      "forkReb": 12,
+      "mass": 61.678
+    },
+    "137": {
+      "shockPsi": 137.8,
+      "shockReb": 12,
+      "forkPsi": 59.8,
+      "forkReb": 12,
+      "mass": 62.132
+    },
+    "138": {
+      "shockPsi": 138.9,
+      "shockReb": 12,
+      "forkPsi": 60.2,
+      "forkReb": 12,
+      "mass": 62.585
+    },
+    "139": {
+      "shockPsi": 140.1,
+      "shockReb": 12,
+      "forkPsi": 60.6,
+      "forkReb": 12,
+      "mass": 63.039
+    },
+    "140": {
+      "shockPsi": 141.3,
+      "shockReb": 12,
+      "forkPsi": 61.0,
+      "forkReb": 12,
+      "mass": 63.492
+    },
+    "141": {
+      "shockPsi": 142.4,
+      "shockReb": 12,
+      "forkPsi": 61.4,
+      "forkReb": 11,
+      "mass": 63.946
+    },
+    "142": {
+      "shockPsi": 143.6,
+      "shockReb": 12,
+      "forkPsi": 61.8,
+      "forkReb": 11,
+      "mass": 64.399
+    },
+    "143": {
+      "shockPsi": 144.8,
+      "shockReb": 12,
+      "forkPsi": 62.2,
+      "forkReb": 11,
+      "mass": 64.853
+    },
+    "144": {
+      "shockPsi": 145.9,
+      "shockReb": 11,
+      "forkPsi": 62.6,
+      "forkReb": 11,
+      "mass": 65.306
+    },
+    "145": {
+      "shockPsi": 147.1,
+      "shockReb": 11,
+      "forkPsi": 63.0,
+      "forkReb": 11,
+      "mass": 65.76
+    },
+    "146": {
+      "shockPsi": 148.3,
+      "shockReb": 11,
+      "forkPsi": 63.4,
+      "forkReb": 11,
+      "mass": 66.213
+    },
+    "147": {
+      "shockPsi": 149.5,
+      "shockReb": 11,
+      "forkPsi": 63.8,
+      "forkReb": 11,
+      "mass": 66.667
+    },
+    "148": {
+      "shockPsi": 150.6,
+      "shockReb": 11,
+      "forkPsi": 64.2,
+      "forkReb": 11,
+      "mass": 67.12
+    },
+    "149": {
+      "shockPsi": 151.8,
+      "shockReb": 11,
+      "forkPsi": 64.6,
+      "forkReb": 11,
+      "mass": 67.574
+    },
+    "150": {
+      "shockPsi": 153.0,
+      "shockReb": 11,
+      "forkPsi": 65.0,
+      "forkReb": 10,
+      "mass": 68.027
+    },
+    "151": {
+      "shockPsi": 154.1,
+      "shockReb": 11,
+      "forkPsi": 65.4,
+      "forkReb": 10,
+      "mass": 68.481
+    },
+    "152": {
+      "shockPsi": 155.3,
+      "shockReb": 11,
+      "forkPsi": 65.8,
+      "forkReb": 10,
+      "mass": 68.934
+    },
+    "153": {
+      "shockPsi": 156.5,
+      "shockReb": 11,
+      "forkPsi": 66.2,
+      "forkReb": 10,
+      "mass": 69.388
+    },
+    "154": {
+      "shockPsi": 157.6,
+      "shockReb": 10,
+      "forkPsi": 66.6,
+      "forkReb": 10,
+      "mass": 69.841
+    },
+    "155": {
+      "shockPsi": 158.8,
+      "shockReb": 10,
+      "forkPsi": 67.0,
+      "forkReb": 10,
+      "mass": 70.295
+    },
+    "156": {
+      "shockPsi": 160.0,
+      "shockReb": 10,
+      "forkPsi": 67.4,
+      "forkReb": 10,
+      "mass": 70.748
+    },
+    "157": {
+      "shockPsi": 161.2,
+      "shockReb": 10,
+      "forkPsi": 67.9,
+      "forkReb": 10,
+      "mass": 71.202
+    },
+    "158": {
+      "shockPsi": 162.3,
+      "shockReb": 10,
+      "forkPsi": 68.4,
+      "forkReb": 10,
+      "mass": 71.655
+    },
+    "159": {
+      "shockPsi": 163.5,
+      "shockReb": 10,
+      "forkPsi": 69.0,
+      "forkReb": 10,
+      "mass": 72.109
+    },
+    "160": {
+      "shockPsi": 164.7,
+      "shockReb": 10,
+      "forkPsi": 69.5,
+      "forkReb": 10,
+      "mass": 72.562
+    },
+    "161": {
+      "shockPsi": 165.8,
+      "shockReb": 10,
+      "forkPsi": 70.0,
+      "forkReb": 9,
+      "mass": 73.016
+    },
+    "162": {
+      "shockPsi": 167.0,
+      "shockReb": 10,
+      "forkPsi": 70.6,
+      "forkReb": 9,
+      "mass": 73.469
+    },
+    "163": {
+      "shockPsi": 168.2,
+      "shockReb": 10,
+      "forkPsi": 71.1,
+      "forkReb": 9,
+      "mass": 73.923
+    },
+    "164": {
+      "shockPsi": 169.3,
+      "shockReb": 10,
+      "forkPsi": 71.6,
+      "forkReb": 9,
+      "mass": 74.376
+    },
+    "165": {
+      "shockPsi": 170.5,
+      "shockReb": 10,
+      "forkPsi": 72.0,
+      "forkReb": 9,
+      "mass": 74.83
+    },
+    "166": {
+      "shockPsi": 171.7,
+      "shockReb": 10,
+      "forkPsi": 72.4,
+      "forkReb": 9,
+      "mass": 75.283
+    },
+    "167": {
+      "shockPsi": 172.9,
+      "shockReb": 9,
+      "forkPsi": 72.8,
+      "forkReb": 9,
+      "mass": 75.737
+    },
+    "168": {
+      "shockPsi": 174.0,
+      "shockReb": 9,
+      "forkPsi": 73.2,
+      "forkReb": 9,
+      "mass": 76.19
+    },
+    "169": {
+      "shockPsi": 175.2,
+      "shockReb": 9,
+      "forkPsi": 73.6,
+      "forkReb": 9,
+      "mass": 76.644
+    },
+    "170": {
+      "shockPsi": 176.4,
+      "shockReb": 9,
+      "forkPsi": 74.0,
+      "forkReb": 8,
+      "mass": 77.098
+    },
+    "171": {
+      "shockPsi": 177.5,
+      "shockReb": 9,
+      "forkPsi": 74.4,
+      "forkReb": 8,
+      "mass": 77.551
+    },
+    "172": {
+      "shockPsi": 178.7,
+      "shockReb": 9,
+      "forkPsi": 74.8,
+      "forkReb": 8,
+      "mass": 78.005
+    },
+    "173": {
+      "shockPsi": 179.9,
+      "shockReb": 9,
+      "forkPsi": 75.2,
+      "forkReb": 8,
+      "mass": 78.458
+    },
+    "174": {
+      "shockPsi": 181.1,
+      "shockReb": 9,
+      "forkPsi": 75.6,
+      "forkReb": 8,
+      "mass": 78.912
+    },
+    "175": {
+      "shockPsi": 182.2,
+      "shockReb": 9,
+      "forkPsi": 76.0,
+      "forkReb": 8,
+      "mass": 79.365
+    },
+    "176": {
+      "shockPsi": 183.4,
+      "shockReb": 9,
+      "forkPsi": 76.4,
+      "forkReb": 8,
+      "mass": 79.819
+    },
+    "177": {
+      "shockPsi": 184.6,
+      "shockReb": 9,
+      "forkPsi": 76.8,
+      "forkReb": 8,
+      "mass": 80.272
+    },
+    "178": {
+      "shockPsi": 185.9,
+      "shockReb": 8,
+      "forkPsi": 77.2,
+      "forkReb": 8,
+      "mass": 80.726
+    },
+    "179": {
+      "shockPsi": 187.3,
+      "shockReb": 8,
+      "forkPsi": 77.6,
+      "forkReb": 8,
+      "mass": 81.179
+    },
+    "180": {
+      "shockPsi": 188.6,
+      "shockReb": 8,
+      "forkPsi": 78.0,
+      "forkReb": 8,
+      "mass": 81.633
+    },
+    "181": {
+      "shockPsi": 189.9,
+      "shockReb": 8,
+      "forkPsi": 78.4,
+      "forkReb": 7,
+      "mass": 82.086
+    },
+    "182": {
+      "shockPsi": 191.3,
+      "shockReb": 8,
+      "forkPsi": 78.8,
+      "forkReb": 7,
+      "mass": 82.54
+    },
+    "183": {
+      "shockPsi": 192.6,
+      "shockReb": 8,
+      "forkPsi": 79.2,
+      "forkReb": 7,
+      "mass": 82.993
+    },
+    "184": {
+      "shockPsi": 193.9,
+      "shockReb": 8,
+      "forkPsi": 79.6,
+      "forkReb": 7,
+      "mass": 83.447
+    },
+    "185": {
+      "shockPsi": 195.2,
+      "shockReb": 7,
+      "forkPsi": 80.0,
+      "forkReb": 7,
+      "mass": 83.9
+    },
+    "186": {
+      "shockPsi": 196.6,
+      "shockReb": 7,
+      "forkPsi": 80.4,
+      "forkReb": 7,
+      "mass": 84.354
+    },
+    "187": {
+      "shockPsi": 197.9,
+      "shockReb": 7,
+      "forkPsi": 80.9,
+      "forkReb": 7,
+      "mass": 84.807
+    },
+    "188": {
+      "shockPsi": 199.2,
+      "shockReb": 7,
+      "forkPsi": 81.4,
+      "forkReb": 7,
+      "mass": 85.261
+    },
+    "189": {
+      "shockPsi": 200.5,
+      "shockReb": 7,
+      "forkPsi": 82.0,
+      "forkReb": 7,
+      "mass": 85.714
+    },
+    "190": {
+      "shockPsi": 201.9,
+      "shockReb": 7,
+      "forkPsi": 82.5,
+      "forkReb": 6,
+      "mass": 86.168
+    },
+    "191": {
+      "shockPsi": 203.2,
+      "shockReb": 7,
+      "forkPsi": 83.0,
+      "forkReb": 6,
+      "mass": 86.621
+    },
+    "192": {
+      "shockPsi": 204.5,
+      "shockReb": 7,
+      "forkPsi": 83.6,
+      "forkReb": 6,
+      "mass": 87.075
+    },
+    "193": {
+      "shockPsi": 205.9,
+      "shockReb": 6,
+      "forkPsi": 84.1,
+      "forkReb": 6,
+      "mass": 87.528
+    },
+    "194": {
+      "shockPsi": 207.2,
+      "shockReb": 6,
+      "forkPsi": 84.6,
+      "forkReb": 6,
+      "mass": 87.982
+    },
+    "195": {
+      "shockPsi": 208.5,
+      "shockReb": 6,
+      "forkPsi": 85.0,
+      "forkReb": 6,
+      "mass": 88.435
+    },
+    "196": {
+      "shockPsi": 209.8,
+      "shockReb": 6,
+      "forkPsi": 85.4,
+      "forkReb": 6,
+      "mass": 88.889
+    },
+    "197": {
+      "shockPsi": 211.2,
+      "shockReb": 6,
+      "forkPsi": 85.8,
+      "forkReb": 6,
+      "mass": 89.342
+    },
+    "198": {
+      "shockPsi": 212.5,
+      "shockReb": 6,
+      "forkPsi": 86.2,
+      "forkReb": 6,
+      "mass": 89.796
+    },
+    "199": {
+      "shockPsi": 213.8,
+      "shockReb": 6,
+      "forkPsi": 86.6,
+      "forkReb": 6,
+      "mass": 90.249
+    },
+    "200": {
+      "shockPsi": 215.1,
+      "shockReb": 5,
+      "forkPsi": 87.0,
+      "forkReb": 6,
+      "mass": 90.703
+    },
+    "201": {
+      "shockPsi": 216.5,
+      "shockReb": 5,
+      "forkPsi": 87.4,
+      "forkReb": 5,
+      "mass": 91.156
+    },
+    "202": {
+      "shockPsi": 217.8,
+      "shockReb": 5,
+      "forkPsi": 87.8,
+      "forkReb": 5,
+      "mass": 91.61
+    },
+    "203": {
+      "shockPsi": 219.1,
+      "shockReb": 5,
+      "forkPsi": 88.2,
+      "forkReb": 5,
+      "mass": 92.063
+    },
+    "204": {
+      "shockPsi": 220.5,
+      "shockReb": 5,
+      "forkPsi": 88.6,
+      "forkReb": 5,
+      "mass": 92.517
+    },
+    "205": {
+      "shockPsi": 221.8,
+      "shockReb": 5,
+      "forkPsi": 89.0,
+      "forkReb": 5,
+      "mass": 92.971
+    },
+    "206": {
+      "shockPsi": 223.1,
+      "shockReb": 5,
+      "forkPsi": 89.4,
+      "forkReb": 5,
+      "mass": 93.424
+    },
+    "207": {
+      "shockPsi": 224.4,
+      "shockReb": 5,
+      "forkPsi": 89.8,
+      "forkReb": 5,
+      "mass": 93.878
+    },
+    "208": {
+      "shockPsi": 225.8,
+      "shockReb": 4,
+      "forkPsi": 90.2,
+      "forkReb": 5,
+      "mass": 94.331
+    },
+    "209": {
+      "shockPsi": 227.1,
+      "shockReb": 4,
+      "forkPsi": 90.6,
+      "forkReb": 5,
+      "mass": 94.785
+    },
+    "210": {
+      "shockPsi": 228.4,
+      "shockReb": 4,
+      "forkPsi": 91.0,
+      "forkReb": 4,
+      "mass": 95.238
+    },
+    "211": {
+      "shockPsi": 229.8,
+      "shockReb": 4,
+      "forkPsi": 91.4,
+      "forkReb": 4,
+      "mass": 95.692
+    },
+    "212": {
+      "shockPsi": 231.1,
+      "shockReb": 4,
+      "forkPsi": 91.8,
+      "forkReb": 4,
+      "mass": 96.145
+    },
+    "213": {
+      "shockPsi": 232.4,
+      "shockReb": 4,
+      "forkPsi": 92.2,
+      "forkReb": 4,
+      "mass": 96.599
+    },
+    "214": {
+      "shockPsi": 233.7,
+      "shockReb": 4,
+      "forkPsi": 92.6,
+      "forkReb": 4,
+      "mass": 97.052
+    },
+    "215": {
+      "shockPsi": 235.1,
+      "shockReb": 3,
+      "forkPsi": 93.0,
+      "forkReb": 4,
+      "mass": 97.506
+    },
+    "216": {
+      "shockPsi": 236.4,
+      "shockReb": 3,
+      "forkPsi": 93.4,
+      "forkReb": 4,
+      "mass": 97.959
+    },
+    "217": {
+      "shockPsi": 237.7,
+      "shockReb": 3,
+      "forkPsi": 93.8,
+      "forkReb": 4,
+      "mass": 98.413
+    },
+    "218": {
+      "shockPsi": 239.0,
+      "shockReb": 3,
+      "forkPsi": 94.2,
+      "forkReb": 4,
+      "mass": 98.866
+    },
+    "219": {
+      "shockPsi": 240.4,
+      "shockReb": 3,
+      "forkPsi": 94.6,
+      "forkReb": 4,
+      "mass": 99.32
+    },
+    "220": {
+      "shockPsi": 241.7,
+      "shockReb": 3,
+      "forkPsi": 95.0,
+      "forkReb": 4,
+      "mass": 99.773
+    },
+    "221": {
+      "shockPsi": 243.0,
+      "shockReb": 3,
+      "forkPsi": 95.4,
+      "forkReb": 3,
+      "mass": 100.227
+    },
+    "222": {
+      "shockPsi": 244.4,
+      "shockReb": 3,
+      "forkPsi": 95.8,
+      "forkReb": 3,
+      "mass": 100.68
+    },
+    "223": {
+      "shockPsi": 245.7,
+      "shockReb": 3,
+      "forkPsi": 96.2,
+      "forkReb": 3,
+      "mass": 101.134
+    },
+    "224": {
+      "shockPsi": 247.0,
+      "shockReb": 3,
+      "forkPsi": 96.6,
+      "forkReb": 3,
+      "mass": 101.587
+    },
+    "225": {
+      "shockPsi": 248.3,
+      "shockReb": 2,
+      "forkPsi": 97.0,
+      "forkReb": 3,
+      "mass": 102.041
+    },
+    "226": {
+      "shockPsi": 249.7,
+      "shockReb": 2,
+      "forkPsi": 97.4,
+      "forkReb": 3,
+      "mass": 102.494
+    },
+    "227": {
+      "shockPsi": 251.0,
+      "shockReb": 2,
+      "forkPsi": 97.9,
+      "forkReb": 3,
+      "mass": 102.948
+    },
+    "228": {
+      "shockPsi": 252.3,
+      "shockReb": 2,
+      "forkPsi": 98.4,
+      "forkReb": 3,
+      "mass": 103.401
+    },
+    "229": {
+      "shockPsi": 253.6,
+      "shockReb": 2,
+      "forkPsi": 98.9,
+      "forkReb": 3,
+      "mass": 103.855
+    },
+    "230": {
+      "shockPsi": 255.0,
+      "shockReb": 2,
+      "forkPsi": 99.4,
+      "forkReb": 3,
+      "mass": 104.308
+    },
+    "231": {
+      "shockPsi": 256.3,
+      "shockReb": 2,
+      "forkPsi": 100.0,
+      "forkReb": 2,
+      "mass": 104.762
+    },
+    "232": {
+      "shockPsi": 257.6,
+      "shockReb": 2,
+      "forkPsi": 100.5,
+      "forkReb": 2,
+      "mass": 105.215
+    },
+    "233": {
+      "shockPsi": 259.0,
+      "shockReb": 2,
+      "forkPsi": 101.0,
+      "forkReb": 2,
+      "mass": 105.669
+    },
+    "234": {
+      "shockPsi": 260.3,
+      "shockReb": 2,
+      "forkPsi": 101.5,
+      "forkReb": 2,
+      "mass": 106.122
+    },
+    "235": {
+      "shockPsi": 261.6,
+      "shockReb": 2,
+      "forkPsi": 102.0,
+      "forkReb": 2,
+      "mass": 106.576
+    },
+    "236": {
+      "shockPsi": 262.9,
+      "shockReb": 1,
+      "forkPsi": 102.4,
+      "forkReb": 2,
+      "mass": 107.029
+    },
+    "237": {
+      "shockPsi": 264.3,
+      "shockReb": 1,
+      "forkPsi": 102.9,
+      "forkReb": 2,
+      "mass": 107.483
+    },
+    "238": {
+      "shockPsi": 265.6,
+      "shockReb": 1,
+      "forkPsi": 103.3,
+      "forkReb": 2,
+      "mass": 107.937
+    },
+    "239": {
+      "shockPsi": 266.9,
+      "shockReb": 1,
+      "forkPsi": 103.7,
+      "forkReb": 2,
+      "mass": 108.39
+    },
+    "240": {
+      "shockPsi": 268.2,
+      "shockReb": 1,
+      "forkPsi": 104.1,
+      "forkReb": 1,
+      "mass": 108.844
+    }
+  }
+}

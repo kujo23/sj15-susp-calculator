@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SJ15 Suspension Calculator</title>
+<title>Stumpy 15 Suspension Calculator</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%236366F1'/><rect x='12' y='4' width='8' height='2.5' rx='1.25' fill='white'/><polyline points='16,6.5 22,9.5 10,13.5 22,17.5 10,21.5 16,24.5' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/><rect x='12' y='25' width='8' height='2.5' rx='1.25' fill='white'/></svg>">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -100,13 +100,13 @@ body.mode-psi .psi-row{display:none}
 </head>
 <body>
 
-<h1 class="app-title">SJ15 Suspension Calculator</h1>
-<p class="app-sub">Stumpjumper 15 Comp Alloy · Genie FLOAT Performance · Fox Rhythm 36 · S3 · 175cm rider</p>
+<h1 class="app-title">Stumpy 15 Suspension Calculator</h1>
+<p class="app-sub">Stumpjumper 15 Comp Alloy · S3 · Genie FLOAT Performance · Fox Rhythm 36</p>
 
 <div class="tabs-row">
   <div class="tabs" role="tablist">
-    <button type="button" class="tab on" role="tab" aria-selected="true" onclick="setMode('wt')">By rider weight</button>
-    <button type="button" class="tab" role="tab" aria-selected="false" onclick="setMode('psi')">By air pressure</button>
+    <button type="button" class="tab on" role="tab" aria-selected="true" onclick="setMode('wt')">By Weight</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" onclick="setMode('psi')">By Pressure</button>
   </div>
   <div class="info-wrap">
     <button type="button" class="info-btn" id="infoBtn" aria-label="How values are calculated" onclick="toggleInfo(event)">
@@ -114,12 +114,12 @@ body.mode-psi .psi-row{display:none}
     </button>
     <div class="info-pop" id="infoPop">
       <div class="info-sec">
-        <div class="info-head">By rider weight</div>
+        <div class="info-head">By Weight</div>
         <div class="info-body">Values come directly from the spec table — no estimation. SJ15 spec covers 101–240 lbs. Fox fork available 120–250 lbs only.</div>
       </div>
       <div class="info-sec">
-        <div class="info-head">By air pressure</div>
-        <div class="info-body">If your PSI isn't an exact table entry, the nearest one is used. When two are equally close, the higher PSI (fewer rebound clicks) is chosen.</div>
+        <div class="info-head">By Pressure</div>
+        <div class="info-body">If your PSI isn't an exact table entry, the nearest one is used.</div>
       </div>
       <div class="info-sec">
         <div class="info-head">Two values shown</div>
@@ -133,7 +133,7 @@ body.mode-psi .psi-row{display:none}
   <div class="field">
     <label for="riderIn">Rider weight</label>
     <div class="input-unit-row">
-      <input type="number" id="riderIn" value="156" min="50" max="280" step="1" oninput="onWt()">
+      <input type="number" id="riderIn" value="156" min="50" max="280" step="1" oninput="onWt()" onbeforeinput="blockDot(event,unit==='kg')">
       <div class="tgrp">
         <button type="button" class="tbtn on" id="bLbs" aria-pressed="true" onclick="setUnit('lbs')">lbs</button>
         <button type="button" class="tbtn" id="bKg" aria-pressed="false" onclick="setUnit('kg')">kg</button>
@@ -144,14 +144,14 @@ body.mode-psi .psi-row{display:none}
     <span class="wt-sep">+</span>
     <div class="field">
       <label for="gearIn">Gear weight</label>
-      <input type="number" id="gearIn" value="10" min="0" max="100" step="1" oninput="onWt()" style="width:80px">
+      <input type="number" id="gearIn" value="10" min="0" max="100" step="1" oninput="onWt()" onbeforeinput="blockDot(event,unit==='kg')" style="width:80px">
     </div>
     <span id="totalDisp">=&nbsp;166 lbs</span>
   </div>
 </div>
 <div id="mPsi" class="input-row" style="display:none">
-  <div class="field"><label for="spIn">Shock PSI</label><input type="number" id="spIn" value="171" min="50" max="300" step="1" oninput="onPsi()"></div>
-  <div class="field"><label for="fpIn">Fork PSI</label><input type="number" id="fpIn" value="75" min="30" max="130" step="1" oninput="onPsi()"></div>
+  <div class="field"><label for="spIn">Shock PSI</label><input type="number" id="spIn" value="171" min="50" max="300" step="1" oninput="onPsi()" onbeforeinput="blockDot(event,false)"></div>
+  <div class="field"><label for="fpIn">Fork PSI</label><input type="number" id="fpIn" value="75" min="30" max="130" step="1" oninput="onPsi()" onbeforeinput="blockDot(event,false)"></div>
 </div>
 <div class="defaults-row">
   <button type="button" class="def-btn" id="saveDefBtn" onclick="saveDefaults()">Save as default</button>
@@ -228,34 +228,43 @@ body.mode-psi .psi-row{display:none}
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-const SPEC=[
-[96,45,13,13],[96,45,13,13],[98,46,13,13],[98,46,13,13],[100,47,13,13],[100,47,13,13],[104,48,13,13],[104,48,13,13],[104,48,13,13],[106,49,13,13],
-[106,49,13,13],[109,50,13,13],[109,50,13,13],[111,51,13,13],[111,51,13,13],[113,51,13,13],[113,51,13,13],[117,53,13,13],[117,53,13,13],[117,53,13,13],
-[119,53,13,13],[119,53,13,13],[121,54,13,13],[121,54,13,13],[124,55,13,13],[124,55,13,13],[126,56,13,13],[126,56,13,13],[130,57,13,12],[130,57,13,12],
-[130,57,13,12],[132,58,13,12],[132,58,13,12],[134,59,13,12],[134,59,13,12],[137,59,12,12],[137,59,12,12],[139,60,12,12],[139,60,12,12],[142,61,12,11],
-[142,61,12,11],[142,61,12,11],[145,62,12,11],[145,62,12,11],[147,63,11,11],[147,63,11,11],[150,64,11,11],[150,64,11,11],[152,65,11,11],[152,65,11,11],
-[152,65,11,11],[155,66,11,10],[155,66,11,10],[158,67,10,10],[158,67,10,10],[160,67,10,10],[160,67,10,10],[162,68,10,10],[162,68,10,10],[165,70,10,10],
-[165,70,10,10],[165,70,10,10],[168,71,10,9],[168,71,10,9],[171,72,10,9],[171,72,10,9],[173,73,9,9],[173,73,9,9],[175,74,9,9],[175,74,9,9],
-[178,74,9,8],[178,74,9,8],[178,74,9,8],[181,76,9,8],[181,76,9,8],[183,76,9,8],[183,76,9,8],[186,77,8,8],[186,77,8,8],[189,78,8,8],
-[189,78,8,8],[191,79,8,7],[191,79,8,7],[191,79,8,7],[195,80,7,7],[195,80,7,7],[198,81,7,7],[198,81,7,7],[201,82,7,7],[201,82,7,7],
-[203,83,7,6],[203,83,7,6],[207,85,6,6],[207,85,6,6],[207,85,6,6],[210,85,6,6],[210,85,6,6],[213,86,6,6],[213,86,6,6],[215,87,5,6],
-[215,87,5,6],[218,88,5,5],[218,88,5,5],[222,89,5,5],[222,89,5,5],[222,89,5,5],[224,90,5,5],[224,90,5,5],[227,91,4,5],[227,91,4,5],
-[230,91,4,4],[230,91,4,4],[232,92,4,4],[232,92,4,4],[236,93,3,4],[236,93,3,4],[236,93,3,4],[239,94,3,4],[239,94,3,4],[242,95,3,4],
-[242,95,3,4],[244,96,3,3],[244,96,3,3],[247,97,3,3],[247,97,3,3],[251,98,2,3],[251,98,2,3],[251,98,2,3],[254,99,2,3],[254,99,2,3],
-[256,100,2,2],[256,100,2,2],[259,101,2,2],[259,101,2,2],[262,102,2,2],[262,102,2,2],[266,103,1,2],[266,103,1,2],[266,103,1,2],[268,104,1,1]
-];
 const FOX=[[120,130,55,13],[130,140,59,12],[140,150,63,11],[150,160,67,10],[160,170,72,9],[170,180,76,8],[180,190,80,7],[190,200,85,6],[200,210,89,5],[210,220,93,4],[220,230,97,3],[230,240,102,2],[240,251,106,1]];
+// Raw API data from Specialized's calculator, integer-lb keyed (lb 101..240).
+// [shockPsi, forkPsi, shockReb, forkReb] — psi unrounded, rebound is integer clicks.
+// Pulled via scripts/refresh-spec.py at sample lbs N.5 (mid-bucket, avoids float edge).
+const SPEC_RAW=[
+[95.6,45.4,13,13],[96.8,45.8,13,13],[98.0,46.2,13,13],[99.1,46.6,13,13],[100.3,47.0,13,13],[101.5,47.4,13,13],[102.6,47.8,13,13],
+[103.8,48.2,13,13],[105.0,48.6,13,13],[106.2,49.0,13,13],[107.3,49.4,13,13],[108.5,49.8,13,13],[109.7,50.2,13,13],[110.8,50.6,13,13],
+[112.0,51.0,13,13],[113.2,51.4,13,13],[114.3,51.8,13,13],[115.5,52.2,13,13],[116.7,52.6,13,13],[117.9,53.0,13,13],[119.0,53.4,13,13],
+[120.2,53.8,13,13],[121.4,54.2,13,13],[122.5,54.6,13,13],[123.7,55.0,13,13],[124.9,55.4,13,13],[126.0,55.8,13,13],[127.2,56.2,13,13],
+[128.4,56.6,13,13],[129.6,57.0,13,12],[130.7,57.4,13,12],[131.9,57.8,13,12],[133.1,58.2,13,12],[134.2,58.6,13,12],[135.4,59.0,12,12],
+[136.6,59.4,12,12],[137.8,59.8,12,12],[138.9,60.2,12,12],[140.1,60.6,12,12],[141.3,61.0,12,12],[142.4,61.4,12,11],[143.6,61.8,12,11],
+[144.8,62.2,12,11],[145.9,62.6,11,11],[147.1,63.0,11,11],[148.3,63.4,11,11],[149.5,63.8,11,11],[150.6,64.2,11,11],[151.8,64.6,11,11],
+[153.0,65.0,11,10],[154.1,65.4,11,10],[155.3,65.8,11,10],[156.5,66.2,11,10],[157.6,66.6,10,10],[158.8,67.0,10,10],[160.0,67.4,10,10],
+[161.2,67.9,10,10],[162.3,68.4,10,10],[163.5,69.0,10,10],[164.7,69.5,10,10],[165.8,70.0,10,9],[167.0,70.6,10,9],[168.2,71.1,10,9],
+[169.3,71.6,10,9],[170.5,72.0,10,9],[171.7,72.4,10,9],[172.9,72.8,9,9],[174.0,73.2,9,9],[175.2,73.6,9,9],[176.4,74.0,9,8],
+[177.5,74.4,9,8],[178.7,74.8,9,8],[179.9,75.2,9,8],[181.1,75.6,9,8],[182.2,76.0,9,8],[183.4,76.4,9,8],[184.6,76.8,9,8],
+[185.9,77.2,8,8],[187.3,77.6,8,8],[188.6,78.0,8,8],[189.9,78.4,8,7],[191.3,78.8,8,7],[192.6,79.2,8,7],[193.9,79.6,8,7],
+[195.2,80.0,7,7],[196.6,80.4,7,7],[197.9,80.9,7,7],[199.2,81.4,7,7],[200.5,82.0,7,7],[201.9,82.5,7,6],[203.2,83.0,7,6],
+[204.5,83.6,7,6],[205.9,84.1,6,6],[207.2,84.6,6,6],[208.5,85.0,6,6],[209.8,85.4,6,6],[211.2,85.8,6,6],[212.5,86.2,6,6],
+[213.8,86.6,6,6],[215.1,87.0,5,6],[216.5,87.4,5,5],[217.8,87.8,5,5],[219.1,88.2,5,5],[220.5,88.6,5,5],[221.8,89.0,5,5],
+[223.1,89.4,5,5],[224.4,89.8,5,5],[225.8,90.2,4,5],[227.1,90.6,4,5],[228.4,91.0,4,4],[229.8,91.4,4,4],[231.1,91.8,4,4],
+[232.4,92.2,4,4],[233.7,92.6,4,4],[235.1,93.0,3,4],[236.4,93.4,3,4],[237.7,93.8,3,4],[239.0,94.2,3,4],[240.4,94.6,3,4],
+[241.7,95.0,3,4],[243.0,95.4,3,3],[244.4,95.8,3,3],[245.7,96.2,3,3],[247.0,96.6,3,3],[248.3,97.0,2,3],[249.7,97.4,2,3],
+[251.0,97.9,2,3],[252.3,98.4,2,3],[253.6,98.9,2,3],[255.0,99.4,2,3],[256.3,100.0,2,2],[257.6,100.5,2,2],[259.0,101.0,2,2],
+[260.3,101.5,2,2],[261.6,102.0,2,2],[262.9,102.4,1,2],[264.3,102.9,1,2],[265.6,103.3,1,2],[266.9,103.7,1,2],[268.2,104.1,1,1]
+];
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 const LBS_PER_KG   = 2.20462;
 const SPEC_MIN_LBS = 101;
-const SPEC_MAX_LBS = SPEC_MIN_LBS + SPEC.length - 1; // 240
-const FOX_MIN_LBS  = FOX[0][0];                       // 120
-const FOX_MAX_LBS  = FOX[FOX.length - 1][1] - 1;      // 250 (foxAt uses lbs<r[1], so 251 is OOR)
-const SHOCK_SPEC_PSI_MIN = Math.min(...SPEC.map(r=>r[0]));  // 96
-const SHOCK_SPEC_PSI_MAX = Math.max(...SPEC.map(r=>r[0]));  // 268
-const FORK_SPEC_PSI_MIN  = Math.min(...SPEC.map(r=>r[1]));  // 45
-const FORK_SPEC_PSI_MAX  = Math.max(...SPEC.map(r=>r[1]));  // 104
+const SPEC_MAX_LBS = SPEC_MIN_LBS + SPEC_RAW.length - 1; // 240
+const FOX_MIN_LBS  = FOX[0][0];                           // 120
+const FOX_MAX_LBS  = FOX[FOX.length - 1][1] - 1;          // 250 (foxAt uses lbs<r[1], so 251 is OOR)
+const SHOCK_SPEC_PSI_MIN = Math.min(...SPEC_RAW.map(r=>r[0]));  // 95.6
+const SHOCK_SPEC_PSI_MAX = Math.max(...SPEC_RAW.map(r=>r[0]));  // 268.2
+const FORK_SPEC_PSI_MIN  = Math.min(...SPEC_RAW.map(r=>r[1]));  // 45.4
+const FORK_SPEC_PSI_MAX  = Math.max(...SPEC_RAW.map(r=>r[1]));  // 104.1
 const FORK_FOX_PSI_MIN   = Math.min(...FOX.map(r=>r[2]));   // 55
 const FORK_FOX_PSI_MAX   = Math.max(...FOX.map(r=>r[2]));   // 106
 
@@ -264,39 +273,40 @@ let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=171,fpsi=75,sXMod
 let showSTbl=false,showFTbl=false;
 
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
-function specAt(lbs){const w=Math.round(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC[w-SPEC_MIN_LBS]:null;}
+function specAt(lbs){return specRawAt(lbs);}
+function specRawAt(lbs){const w=Math.floor(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC_RAW[w-SPEC_MIN_LBS]:null;}
+function specRawAtKg(kg){return specRawAt(Math.floor(kg*LBS_PER_KG));}
 function foxAt(lbs){for(let i=0;i<FOX.length;i++){const r=FOX[i];if(lbs>=r[0]&&lbs<r[1]){const sec=(lbs===r[0]&&i>0)?{psi:FOX[i-1][2],c:FOX[i-1][3]}:null;return{psi:r[2],c:r[3],sec};}}return null;}
 function nearestReb(pi,ri,psi){const pts=uniqByPsi(pi,ri);let b=pts[0],bd=Infinity;for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}return b.y;}
 function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}return b[3];}
+// Tie-only secondary: single answer unless input is exactly equidistant
+// between two entries with different rebounds. Higher-PSI entry is primary.
 function psiOpts(pi,ri,psi){
   const pts=uniqByPsi(pi,ri);
-  let b=pts[0],bd=Infinity;
-  for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}
-  // Check if exact PSI has conflicting clicks in raw data
-  const raw={};for(const r of SPEC)if(r[pi]===psi)raw[r[ri]]=(raw[r[ri]]||0)+1;
-  const rawKeys=Object.keys(raw).map(Number);
-  if(rawKeys.length>1){const sec=rawKeys.find(c=>c!==b.y);return{primary:b.y,secondary:sec??null};}
-  if(b.x===psi)return{primary:b.y,secondary:null};
-  // Not exact: find second nearest, show if clicks differ
-  let b2=null,bd2=Infinity;
-  for(const p of pts){if(p===b)continue;const d=Math.abs(p.x-psi);if(d<bd2){bd2=d;b2=p;}}
-  return{primary:b.y,secondary:(b2&&b2.y!==b.y)?b2.y:null};
+  let bd=Infinity;
+  for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd)bd=d;}
+  const ties=pts.filter(p=>Math.abs(p.x-psi)===bd).sort((a,b)=>b.x-a.x);
+  const primary=ties[0];
+  if(primary.x===psi||ties.length===1)return{primary:primary.y,secondary:null};
+  const other=ties.find(t=>t.y!==primary.y);
+  return{primary:primary.y,secondary:other?other.y:null};
 }
 function foxRebOpts(psi){
-  let b=FOX[0],bd=Infinity;
-  for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}
-  if(b[2]===psi)return{primary:b[3],secondary:null};
-  let b2=null,bd2=Infinity;
-  for(const r of FOX){if(r===b)continue;const d=Math.abs(r[2]-psi);if(d<bd2){bd2=d;b2=r;}}
-  return{primary:b[3],secondary:(b2&&b2[3]!==b[3])?b2[3]:null};
+  let bd=Infinity;
+  for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd)bd=d;}
+  const ties=FOX.filter(r=>Math.abs(r[2]-psi)===bd).sort((a,b)=>b[2]-a[2]);
+  const primary=ties[0];
+  if(primary[2]===psi||ties.length===1)return{primary:primary[3],secondary:null};
+  const other=ties.find(r=>r[3]!==primary[3]);
+  return{primary:primary[3],secondary:other?other[3]:null};
 }
 
 // ── DATASET BUILDERS ─────────────────────────────────────────────────────────
 function toDispX(lbs){return unit==='kg'?lbs/LBS_PER_KG:lbs;}
-function wtPsi(pi){return SPEC.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[pi]}));}
-function wtReb(ri){return SPEC.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[ri]}));}
-function uniqByPsi(pi,ri){const m={};for(const r of SPEC){const p=r[pi],c=r[ri];if(!m[p])m[p]={};m[p][c]=(m[p][c]||0)+1;}return Object.entries(m).map(([p,votes])=>{let best=null,bv=0;for(const[c,v]of Object.entries(votes))if(v>bv||(v===bv&&+c<+(best??Infinity))){bv=v;best=c;}return{x:+p,y:+best};}).sort((a,b)=>a.x-b.x);}
-function sjPsiPts(pi,ri){const pts=uniqByPsi(pi,ri);const mn=pts[0].x,mx=pts[pts.length-1].x;const a=[];for(let p=mn;p<=mx;p++){let b=pts[0],bd=Infinity;for(const pt of pts){const d=Math.abs(pt.x-p);if(d<bd||(d===bd&&pt.x<b.x)){bd=d;b=pt;}}a.push({x:p,y:b.y});}return a;}
+function wtPsi(pi){return SPEC_RAW.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[pi]}));}
+function wtReb(ri){return SPEC_RAW.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[ri]}));}
+function uniqByPsi(pi,ri){const m={};for(const r of SPEC_RAW){const p=r[pi],c=r[ri];if(!m[p])m[p]={};m[p][c]=(m[p][c]||0)+1;}return Object.entries(m).map(([p,votes])=>{let best=null,bv=0;for(const[c,v]of Object.entries(votes))if(v>bv||(v===bv&&+c<+(best??Infinity))){bv=v;best=c;}return{x:+p,y:+best};}).sort((a,b)=>a.x-b.x);}
+function sjPsiPts(pi,ri){const pts=uniqByPsi(pi,ri);const mn=Math.ceil(pts[0].x),mx=Math.floor(pts[pts.length-1].x);const a=[];for(let p=mn;p<=mx;p++){let b=pts[0],bd=Infinity;for(const pt of pts){const d=Math.abs(pt.x-p);if(d<bd||(d===bd&&pt.x<b.x)){bd=d;b=pt;}}a.push({x:p,y:b.y});}return a;}
 function foxPsiPts(){const a=[];for(let p=FOX[0][2];p<=FOX[FOX.length-1][2];p++)a.push({x:p,y:foxRebByPsi(p)});return a;}
 function foxWtPts(col){const a=[];for(const r of FOX)for(let w=r[0];w<r[1];w++)a.push({x:toDispX(w),y:r[col]});return a;}
 
@@ -310,6 +320,7 @@ class MiniChart {
     this.hoverX=null;
     this.onHover=null;
     this.xLabel='';
+    this.floorInterp=false;
     this.yL=yLeftCfg;
     this.yR=yRightCfg;
     this.PAD={t:18,b:38,l:50,r:18};
@@ -343,7 +354,10 @@ class MiniChart {
     if(x===pts[0].x)return pts[0].y;
     if(x===pts[pts.length-1].x)return pts[pts.length-1].y;
     for(let i=0;i<pts.length-1;i++){
-      if(x>=pts[i].x&&x<=pts[i+1].x){return x-pts[i].x<=pts[i+1].x-x?pts[i].y:pts[i+1].y;}
+      if(x>=pts[i].x&&x<=pts[i+1].x){
+        if(this.floorInterp)return pts[i].y;
+        return x-pts[i].x<=pts[i+1].x-x?pts[i].y:pts[i+1].y;
+      }
     }
     return null;
   }
@@ -524,6 +538,7 @@ function refreshCharts(){
   ]:[
     {pts:sjPsiPts(0,2),color:'#6366F1',axis:'R',sid:'s',dash:[],lw:2,fill:true,hidden:false}
   ];
+  SC.floorInterp=(sXMode==='wt'&&unit==='kg');
   SC.setData(sDs,sMx,sXL);
   document.getElementById('sHint').style.display=isDualS?'':'none';
 
@@ -543,6 +558,7 @@ function refreshCharts(){
       {pts:foxPsiPts(),    color:'#F97316',axis:'R',sid:'fox', dash:[],lw:2,fill:true,hidden:!showFox}
     ];
   }
+  FC.floorInterp=(fXMode==='wt'&&unit==='kg');
   FC.setData(fDs,fMx,fXL);
   document.getElementById('fHint').style.display=isDualF?'':'none';
 
@@ -591,7 +607,7 @@ function updateLegends(shx,fhx){
 function shockWtRows(){
   const a=[];let c=null;
   for(let w=SPEC_MIN_LBS;w<=SPEC_MAX_LBS;w++){
-    const r=SPEC[w-SPEC_MIN_LBS];
+    const r=SPEC_RAW[w-SPEC_MIN_LBS];
     if(!c||r[0]!==c.psi||r[2]!==c.reb){if(c)a.push(c);c={wMin:w,wMax:w,psi:r[0],reb:r[2]};}
     else c.wMax=w;
   }
@@ -600,7 +616,7 @@ function shockWtRows(){
 function forkWtRows(){
   const a=[];let c=null;
   for(let w=SPEC_MIN_LBS;w<=SPEC_MAX_LBS;w++){
-    const s=SPEC[w-SPEC_MIN_LBS],f=foxAt(w);
+    const s=SPEC_RAW[w-SPEC_MIN_LBS],f=foxAt(w);
     const sp=s[1],sr=s[3],fp=f?f.psi:null,fr=f?f.c:null;
     if(!c||sp!==c.sp||sr!==c.sr||fp!==c.fp||fr!==c.fr){if(c)a.push(c);c={wMin:w,wMax:w,sp,sr,fp,fr};}
     else c.wMax=w;
@@ -616,15 +632,28 @@ function nearPSI(arr,target){
   for(const p of arr)if(Math.abs(p-target)<Math.abs(b-target)||(Math.abs(p-target)===Math.abs(b-target)&&p>b))b=p;
   return b;
 }
+function syncTblScroll(wrap,prevScroll){
+  if(!wrap||wrap.style.display==='none')return;
+  const scrollEl=wrap.querySelector('.dtbl-scroll');
+  if(!scrollEl)return;
+  scrollEl.scrollTop=prevScroll;
+  const row=scrollEl.querySelector('.tbl-hi');
+  if(!row)return;
+  const cr=scrollEl.getBoundingClientRect(),rr=row.getBoundingClientRect();
+  if(rr.top<cr.top||rr.bottom>cr.bottom){
+    scrollEl.scrollTop+=rr.top-cr.top-(scrollEl.clientHeight-row.clientHeight)/2;
+  }
+}
 function renderShockTable(){
   const el=document.getElementById('sTblWrap');if(!el)return;
   if(!showSTbl){el.style.display='none';return;}
   el.style.display='';
+  const prevScroll=el.querySelector('.dtbl-scroll')?.scrollTop||0;
   const t=el.querySelector('.data-tbl');
   if(mode==='wt'){
-    const rows=shockWtRows(),wR=Math.round(wLbs);
+    const rows=shockWtRows(),wR=Math.floor(wLbs);
     let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight</div><div class="dtbl-cell">PSI</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">';
-    rows.forEach(r=>{h+=`<div class="dtbl-row${wR>=r.wMin&&wR<=r.wMax?' tbl-hi':''}"><div class="dtbl-cell">${fmtWR(r.wMin,r.wMax)}</div><div class="dtbl-cell">${r.psi}</div><div class="dtbl-cell">${r.reb}</div></div>`;});
+    rows.forEach(r=>{h+=`<div class="dtbl-row${wR>=r.wMin&&wR<=r.wMax?' tbl-hi':''}"><div class="dtbl-cell">${fmtWR(r.wMin,r.wMax)}</div><div class="dtbl-cell">${Math.round(r.psi)}</div><div class="dtbl-cell">${r.reb}</div></div>`;});
     t.innerHTML=h+'</div>';
   } else {
     const pts=uniqByPsi(0,2),nx=nearPSI(pts.map(p=>p.x),spsi);
@@ -632,21 +661,23 @@ function renderShockTable(){
     pts.forEach(p=>{h+=`<div class="dtbl-row${p.x===nx?' tbl-hi':''}"><div class="dtbl-cell">${p.x}</div><div class="dtbl-cell">${p.y}</div></div>`;});
     t.innerHTML=h+'</div>';
   }
+  syncTblScroll(el,prevScroll);
 }
 function renderForkTable(){
   const el=document.getElementById('fTblWrap');if(!el)return;
   if(!showFTbl){el.style.display='none';return;}
   el.style.display='';
+  const prevScroll=el.querySelector('.dtbl-scroll')?.scrollTop||0;
   const t=el.querySelector('.data-tbl');
   if(mode==='wt'){
-    const rows=forkWtRows(),wR=Math.round(wLbs);
+    const rows=forkWtRows(),wR=Math.floor(wLbs);
     let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight</div>';
     if(showSj15)h+='<div class="dtbl-cell">SJ15 PSI</div><div class="dtbl-cell">SJ15 Rebound</div>';
     if(showFox)h+='<div class="dtbl-cell">Fox PSI</div><div class="dtbl-cell">Fox Rebound</div>';
     h+='</div></div><div class="dtbl-scroll">';
     rows.forEach(r=>{
       let c=`<div class="dtbl-cell">${fmtWR(r.wMin,r.wMax)}</div>`;
-      if(showSj15)c+=`<div class="dtbl-cell">${r.sp}</div><div class="dtbl-cell">${r.sr}</div>`;
+      if(showSj15)c+=`<div class="dtbl-cell">${Math.round(r.sp)}</div><div class="dtbl-cell">${r.sr}</div>`;
       if(showFox)c+=`<div class="dtbl-cell">${r.fp??'—'}</div><div class="dtbl-cell">${r.fr??'—'}</div>`;
       h+=`<div class="dtbl-row${wR>=r.wMin&&wR<=r.wMax?' tbl-hi':''}">${c}</div>`;
     });
@@ -668,6 +699,7 @@ function renderForkTable(){
     });
     t.innerHTML=h+'</div>';
   }
+  syncTblScroll(el,prevScroll);
 }
 function toggleTable(which){
   if(which==='s'){showSTbl=!showSTbl;document.getElementById('tblBtnS').classList.toggle('on',showSTbl);}
@@ -692,8 +724,8 @@ function setOorLabels(){
     document.getElementById('fSj15Oor').textContent=`out of range (${SPEC_MIN_LBS}–${SPEC_MAX_LBS} lbs)`;
     document.getElementById('fFoxOor').textContent=`out of range (${FOX_MIN_LBS}–${FOX_MAX_LBS} lbs)`;
   } else {
-    document.getElementById('sOor').textContent=`out of range (${SHOCK_SPEC_PSI_MIN}–${SHOCK_SPEC_PSI_MAX} psi)`;
-    document.getElementById('fSj15Oor').textContent=`out of range (${FORK_SPEC_PSI_MIN}–${FORK_SPEC_PSI_MAX} psi)`;
+    document.getElementById('sOor').textContent=`out of range (${Math.ceil(SHOCK_SPEC_PSI_MIN)}–${Math.floor(SHOCK_SPEC_PSI_MAX)} psi)`;
+    document.getElementById('fSj15Oor').textContent=`out of range (${Math.ceil(FORK_SPEC_PSI_MIN)}–${Math.floor(FORK_SPEC_PSI_MAX)} psi)`;
     document.getElementById('fFoxOor').textContent=`out of range (${FORK_FOX_PSI_MIN}–${FORK_FOX_PSI_MAX} psi)`;
   }
 }
@@ -702,16 +734,14 @@ function update(){
   setOorLabels();
   if(mode==='wt'){
     const s=specAt(wLbs),f=foxAt(wLbs);
-    svv('sPsi',s?s[0]:null,null);
+    svv('sPsi',s?Math.round(s[0]):null,null);
     svv('sReb',s?s[2]:null,null);
-    svv('fSj15Psi',s?s[1]:null,null);
+    svv('fSj15Psi',s?Math.round(s[1]):null,null);
     svv('fSj15Reb',s?s[3]:null,null);
     svv('fFoxPsi',f?f.psi:null,f?.sec?.psi??null);
     svv('fFoxReb',f?f.c:null,f?.sec?.c??null);
     oor('sOor',!s);oor('fSj15Oor',!s);oor('fFoxOor',!f);
     document.getElementById('riderIn').classList.toggle('oor-err',!s||!f);
-    if(s){spsi=s[0];fpsi=s[1];}
-    if(f)fpsi=f.psi;
   } else {
     const sIn=spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX;
     const fSpecIn=fpsi>=FORK_SPEC_PSI_MIN&&fpsi<=FORK_SPEC_PSI_MAX;
@@ -751,7 +781,7 @@ function setMode(m){
     t.setAttribute('aria-selected',String(on));
   });
   document.body.classList.toggle('mode-psi',m==='psi');
-  if(m==='psi'){document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
+  if(m==='psi'){spsi=Math.round(spsi);fpsi=Math.round(fpsi);document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
   showSTbl=false;showFTbl=false;
   document.getElementById('tblBtnS').classList.remove('on');
   document.getElementById('tblBtnF').classList.remove('on');
@@ -762,8 +792,8 @@ function setUnit(u){
   unit=u;
   const rEl=document.getElementById('riderIn'),gEl=document.getElementById('gearIn');
   if(u==='kg'){
-    rEl.min=(50/LBS_PER_KG).toFixed(1);rEl.max=(280/LBS_PER_KG).toFixed(1);rEl.step='0.5';
-    gEl.max=(100/LBS_PER_KG).toFixed(1);gEl.step='0.5';
+    rEl.min=(50/LBS_PER_KG).toFixed(1);rEl.max=(280/LBS_PER_KG).toFixed(1);rEl.step='0.1';
+    gEl.max=(100/LBS_PER_KG).toFixed(1);gEl.step='0.1';
   } else {
     rEl.min='50';rEl.max='280';rEl.step='1';
     gEl.max='100';gEl.step='1';
@@ -778,8 +808,12 @@ function setUnit(u){
   refreshCharts();update();
 }
 
+function clipDec(el){const v=el.value;if(!v)return;const c=unit==='kg'?v.replace(/(\.\d).*/,'$1'):v.replace(/\..*/,'');if(c!==v)el.value=c;}
+function blockDot(e,allow){if(!allow&&e.data&&/[.,]/.test(e.data))e.preventDefault();}
 function onWt(){
-  const rv=parseFloat(document.getElementById('riderIn').value),gv=parseFloat(document.getElementById('gearIn').value);
+  const rEl=document.getElementById('riderIn'),gEl=document.getElementById('gearIn');
+  clipDec(rEl);clipDec(gEl);
+  const rv=parseFloat(rEl.value),gv=parseFloat(gEl.value);
   if(!isNaN(rv))riderLbs=unit==='kg'?rv*LBS_PER_KG:rv;
   if(!isNaN(gv))gearLbs=unit==='kg'?gv*LBS_PER_KG:gv;
   wLbs=riderLbs+gearLbs;
@@ -788,7 +822,9 @@ function onWt(){
 }
 
 function onPsi(){
-  const sVal=parseFloat(document.getElementById('spIn').value),fVal=parseFloat(document.getElementById('fpIn').value);
+  const sEl=document.getElementById('spIn'),fEl=document.getElementById('fpIn');
+  [sEl,fEl].forEach(el=>{const v=el.value;if(v){const c=v.replace(/\..*/,'');if(c!==v)el.value=c;}});
+  const sVal=parseInt(sEl.value,10),fVal=parseInt(fEl.value,10);
   if(!isNaN(sVal))spsi=sVal;
   if(!isNaN(fVal))fpsi=fVal;
   update();
@@ -853,7 +889,9 @@ function resetToDefaults(){
   }catch(e){riderLbs=156;gearLbs=10;unit='lbs';spsi=171;fpsi=75;}
   wLbs=riderLbs+gearLbs;
   setUnit(unit);
-  setMode('wt');
+  document.getElementById('spIn').value=spsi;
+  document.getElementById('fpIn').value=fpsi;
+  update();
 }
 function saveState(){
   try{localStorage.setItem('sj15',JSON.stringify({riderLbs,gearLbs,unit,spsi,fpsi,showSj15,showFox}));}catch(e){}
