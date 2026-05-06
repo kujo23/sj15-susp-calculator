@@ -6,23 +6,33 @@ Pulls fresh suspension recommendations from Specialized's calculator API and wri
 
 ### What it does
 
-For the SJ15 Comp (productId `4221395`), size S3:
+For the SJ15 Comp (productId `4221395`), size S3, sweeps every integer lb from 101 to 240. For each lb, sends `weight: kg` where `kg = (lb + 0.5) / 2.20462` — i.e., samples in the **middle of each lb's bucket**.
 
-1. Sweeps every integer kg from 46 to 110 — sends `weight: <int>` to the GraphQL endpoint.
-2. Sweeps every integer lbs from 101 to 240 — converts to fractional kg (`lbs / 2.20462`) and sends.
+Captures `shockPsi`, `shockReb`, `forkPsi`, `forkReb`, plus `mass`. PSI values are stored unrounded (server values verbatim); rebound is integer clicks. Round only at display time in the UI.
 
-Captures shock psi, shock rebound, fork psi, fork rebound for each. **No rounding** — server values are stored verbatim. Round only at display time in the UI.
-
-The output is keyed two ways:
+Output format (keyed by integer lb):
 
 ```json
 {
-  "byKg": { "46": { "shockPsi": 95.6, ... }, "47": { ... }, ... },
-  "byLbs": { "101": { "shockPsi": 95.6, ... }, "102": { ... }, ... }
+  "productId": "4221395",
+  "size": "S3",
+  "fetchedAt": "...",
+  "samplingMethod": "mid-bucket: kg = (lb + 0.5) / lbsPerKg",
+  "byLbs": {
+    "101": { "shockPsi": 95.6, "shockReb": 13, "forkPsi": 45.4, "forkReb": 13, "mass": ... },
+    "102": { ... },
+    ...
+  }
 }
 ```
 
-So the calculator can do `data.byKg[83]` or `data.byLbs[183]` — O(1) lookup with no conversion at lookup time.
+**The `byLbs` key is the lb bucket the row represents** — i.e., the lb the server *returned* for that input. The actual API input was `kg = (lb + 0.5) / lbsPerKg`, not the lb itself. For example, the `"101"` row was produced by sending `kg = 46.0397`; the server applied `floor(46.0397 × 2.20462) = 101` and returned lb 101's data, which we then stored under the `"101"` key.
+
+### Why mid-bucket sampling
+
+Specialized's server buckets the input weight by `floor(kg * 2.20462)` to pick which lb's row to return. Sending `kg = lb / 2.20462` (the natural conversion) lands at the exact bucket boundary, which can fall in either bucket due to IEEE float rounding — for ~6 lbs in the 101–240 range, that meant pulling the previous lb's data instead of the requested lb's.
+
+Adding `+0.5` to the lb before converting puts the query firmly in the middle of the intended bucket, immune to float-precision artifacts. Verified against a 420-row sweep (every lb at N.1, N.5, N.9) showing all three samples per lb return identical data.
 
 ### Run
 
@@ -32,7 +42,7 @@ From the repo root:
 python3 scripts/refresh-spec.py
 ```
 
-Takes ~1 minute (205 sequential HTTP requests with a 100ms delay between each, plus retries). Writes `data/spec-s3-raw.json`.
+Takes ~30s (140 sequential HTTP requests with a 100ms delay between each, plus retries). Writes `data/spec-s3-raw.json`.
 
 If you see `HTTP Error 403`, Specialized may have rotated their `x-code` token. Grab a fresh one by:
 
@@ -45,9 +55,9 @@ If you see `HTTP Error 403`, Specialized may have rotated their `x-code` token. 
 ### When to refresh
 
 - Specialized publishes a SJ15 firmware/chart update.
-- You suspect the local `SPEC` table has drifted.
-- You want to check a different bike — change `PRODUCT_ID` and `SIZE` constants and re-run.
+- You suspect the inline `SPEC_RAW` array in `index.html` has drifted.
+- You want to capture a different bike — change `PRODUCT_ID` and `SIZE` constants and `OUTPUT_PATH` (e.g. `data/spec-s1-raw.json`) before running. Front fork values are size-independent; only rear shock psi and rebound differ across sizes.
 
-### Re-running for other sizes
+### Updating the inline SPEC_RAW
 
-The script is hardcoded to S3. To capture another size, change the `SIZE` constant (`S1`–`S6`) and `OUTPUT_PATH` (e.g. `data/spec-s1-raw.json`) before running. Front fork values are size-independent; only rear shock psi and rebound differ.
+The `SPEC_RAW` array in `index.html` is a transcription of `data/spec-s3-raw.json`'s `byLbs` values. After regenerating the JSON, manually update the inline array (or write a small generator script) — the format is `[shockPsi, forkPsi, shockReb, forkReb]` per lb, ordered 101..240.
