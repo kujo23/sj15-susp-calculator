@@ -273,9 +273,7 @@ let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=171,fpsi=75,sXMod
 let showSTbl=false,showFTbl=false;
 
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
-function specAt(lbs){return specRawAt(lbs);}
-function specRawAt(lbs){const w=Math.floor(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC_RAW[w-SPEC_MIN_LBS]:null;}
-function specRawAtKg(kg){return specRawAt(Math.floor(kg*LBS_PER_KG));}
+function specAt(lbs){const w=Math.floor(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC_RAW[w-SPEC_MIN_LBS]:null;}
 function foxAt(lbs){for(let i=0;i<FOX.length;i++){const r=FOX[i];if(lbs>=r[0]&&lbs<r[1]){const sec=(lbs===r[0]&&i>0)?{psi:FOX[i-1][2],c:FOX[i-1][3]}:null;return{psi:r[2],c:r[3],sec};}}return null;}
 function nearestReb(pi,ri,psi){const pts=uniqByPsi(pi,ri);let b=pts[0],bd=Infinity;for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}return b.y;}
 function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}return b[3];}
@@ -305,7 +303,7 @@ function foxRebOpts(psi){
 function toDispX(lbs){return unit==='kg'?lbs/LBS_PER_KG:lbs;}
 function wtPsi(pi){return SPEC_RAW.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[pi]}));}
 function wtReb(ri){return SPEC_RAW.map((r,i)=>({x:toDispX(SPEC_MIN_LBS+i),y:r[ri]}));}
-function uniqByPsi(pi,ri){const m={};for(const r of SPEC_RAW){const p=r[pi],c=r[ri];if(!m[p])m[p]={};m[p][c]=(m[p][c]||0)+1;}return Object.entries(m).map(([p,votes])=>{let best=null,bv=0;for(const[c,v]of Object.entries(votes))if(v>bv||(v===bv&&+c<+(best??Infinity))){bv=v;best=c;}return{x:+p,y:+best};}).sort((a,b)=>a.x-b.x);}
+function uniqByPsi(pi,ri){return SPEC_RAW.map(r=>({x:r[pi],y:r[ri]})).sort((a,b)=>a.x-b.x);}
 function sjPsiPts(pi,ri){const pts=uniqByPsi(pi,ri);const mn=Math.ceil(pts[0].x),mx=Math.floor(pts[pts.length-1].x);const a=[];for(let p=mn;p<=mx;p++){let b=pts[0],bd=Infinity;for(const pt of pts){const d=Math.abs(pt.x-p);if(d<bd||(d===bd&&pt.x<b.x)){bd=d;b=pt;}}a.push({x:p,y:b.y});}return a;}
 function foxPsiPts(){const a=[];for(let p=FOX[0][2];p<=FOX[FOX.length-1][2];p++)a.push({x:p,y:foxRebByPsi(p)});return a;}
 function foxWtPts(col){const a=[];for(const r of FOX)for(let w=r[0];w<r[1];w++)a.push({x:toDispX(w),y:r[col]});return a;}
