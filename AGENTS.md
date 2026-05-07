@@ -111,7 +111,7 @@ Follow `.github/PULL_REQUEST_TEMPLATE.md`. Always answer: **what changed**, **wh
 
 **Cadence:** on request (`"health check"`).
 
-1. File size — `index.html` is currently ~640 lines. If it grows past ~900, consider whether any self-contained sections (chart engine, data tables) could be extracted without adding a build step.
+1. File size — `index.html` is currently ~930 lines. If it grows past ~1500, consider whether any self-contained sections (chart engine, data tables) could be extracted without adding a build step. The chart engine (`MiniChart` class) is the natural seam — it has no coupling to the rest of the file and could move to its own `<script src="chart.js">` without introducing a build.
 2. `TODO` / `FIXME` audit
 3. Data table accuracy — check Specialized and Fox published charts for updated values seasonally
 
