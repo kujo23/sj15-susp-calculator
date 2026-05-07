@@ -634,9 +634,12 @@ function renderShockTable(){
     rows.forEach(r=>{h+=`<div class="dtbl-row${wR===r.w?' tbl-hi':''}"><div class="dtbl-cell">${fmtW(r.w)}</div><div class="dtbl-cell">${Math.round(r.psi)}</div><div class="dtbl-cell">${r.reb}</div></div>`;});
     t.innerHTML=h+'</div>';
   } else {
-    const pts=uniqByPsi(0,2),nx=nearPSI(pts.map(p=>p.x),spsi);
-    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Pressure, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">';
-    pts.forEach(p=>{h+=`<div class="dtbl-row${p.x===nx?' tbl-hi':''}"><div class="dtbl-cell">${p.x.toFixed(1)}</div><div class="dtbl-cell">${p.y}</div></div>`;});
+    const pts=uniqByPsi(0,2),bands=[];
+    for(const p of pts){const last=bands[bands.length-1];if(last&&last.y===p.y)last.xMax=p.x;else bands.push({xMin:p.x,xMax:p.x,y:p.y});}
+    const dist=b=>Math.max(0,b.xMin-spsi,spsi-b.xMax);
+    let nx=bands[0],nd=dist(nx);for(const b of bands){const d=dist(b);if(d<nd){nd=d;nx=b;}}
+    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Pressure, psi</div><div class="dtbl-cell">Rebound</div><div class="dtbl-cell">Span, psi</div></div></div><div class="dtbl-scroll">';
+    bands.forEach(b=>{const psi=b.xMin===b.xMax?b.xMin.toFixed(1):`${b.xMin.toFixed(1)} – ${b.xMax.toFixed(1)}`;const span=(b.xMax-b.xMin).toFixed(1);h+=`<div class="dtbl-row${b===nx?' tbl-hi':''}"><div class="dtbl-cell">${psi}</div><div class="dtbl-cell">${b.y}</div><div class="dtbl-cell">${span}</div></div>`;});
     t.innerHTML=h+'</div>';
   }
   syncTblScroll(el,prevScroll);
