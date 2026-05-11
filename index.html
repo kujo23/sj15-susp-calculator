@@ -732,7 +732,11 @@ function update(){
     svv('fFoxPsi',f?f.psi:null,f?.sec?.psi??null);
     svv('fFoxReb',f?f.c:null,f?.sec?.c??null);
     oor('sOor',!s);oor('fSj15Oor',!s);oor('fFoxOor',!f);
-    document.getElementById('riderIn').classList.toggle('oor-err',!s||!f);
+    const wtOor=!s||!f;
+    document.getElementById('riderIn').classList.toggle('oor-err',wtOor);
+    document.getElementById('gearIn').classList.toggle('oor-err',wtOor);
+    document.getElementById('spIn').classList.remove('oor-err');
+    document.getElementById('fpIn').classList.remove('oor-err');
   } else {
     const sIn=spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX;
     const fSpecIn=fpsi>=FORK_SPEC_PSI_MIN&&fpsi<=FORK_SPEC_PSI_MAX;
@@ -747,6 +751,10 @@ function update(){
     svv('fFoxPsi',fFoxIn?fpsi:null,null);
     svv('fFoxReb',foxOpts.primary,foxOpts.secondary);
     oor('sOor',!sIn);oor('fSj15Oor',!fSpecIn);oor('fFoxOor',!fFoxIn);
+    document.getElementById('spIn').classList.toggle('oor-err',!sIn);
+    document.getElementById('fpIn').classList.toggle('oor-err',!fSpecIn||!fFoxIn);
+    document.getElementById('riderIn').classList.remove('oor-err');
+    document.getElementById('gearIn').classList.remove('oor-err');
   }
   if(SC){
     const inRange=mode==='psi'?(spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX):specAt(wLbs)!==null;
