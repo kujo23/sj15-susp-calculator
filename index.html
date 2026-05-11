@@ -275,6 +275,7 @@ const FORK_FOX_PSI_MAX   = Math.max(...FOX.map(r=>r[2]));   // 106
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=171,fpsi=75,sXMode='wt',fXMode='wt',showSj15=true,showFox=true;
 let showSTbl=false,showFTbl=false;
+let _booting=false;
 
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
 function specAt(lbs){const w=Math.floor(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC_RAW[w-SPEC_MIN_LBS]:null;}
@@ -781,7 +782,7 @@ function setMode(m){
   });
   document.body.classList.toggle('mode-psi',m==='psi');
   if(m==='psi'){spsi=Math.round(spsi);fpsi=Math.round(fpsi);document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
-  refreshCharts();update();
+  if(!_booting){refreshCharts();update();}
 }
 
 function setUnit(u){
@@ -801,7 +802,7 @@ function setUnit(u){
   rEl.value=u==='kg'?(riderLbs/LBS_PER_KG).toFixed(1):Math.round(riderLbs);
   gEl.value=u==='kg'?(gearLbs/LBS_PER_KG).toFixed(1):Math.round(gearLbs);
   document.getElementById('totalDisp').textContent='= '+(u==='kg'?(wLbs/LBS_PER_KG).toFixed(1)+' kg':Math.round(wLbs)+' lbs');
-  refreshCharts();update();
+  if(!_booting){refreshCharts();update();}
 }
 
 function clipDec(el){const v=el.value;if(!v)return;const c=unit==='kg'?v.replace(/(\.\d).*/,'$1'):v.replace(/\..*/,'');if(c!==v)el.value=c;}
@@ -910,6 +911,7 @@ function loadState(){
 }
 
 window.addEventListener('load',()=>{
+  _booting=true;
   loadState();
   sXMode=mode; fXMode=mode;
   setUnit(unit);
@@ -918,6 +920,7 @@ window.addEventListener('load',()=>{
   document.getElementById('tFoxSer').classList.toggle('on',showFox);
   document.getElementById('tSj15').setAttribute('aria-pressed',String(showSj15));
   document.getElementById('tFoxSer').setAttribute('aria-pressed',String(showFox));
+  _booting=false;
   initCharts();
   update();
 });
