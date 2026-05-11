@@ -98,6 +98,8 @@ body.mode-psi .psi-row{display:none}
 .dtbl-row.tbl-hi .dtbl-cell:first-child{color:#6366F1;font-weight:600}
 .dtbl-side{display:flex;flex-direction:row;gap:20px;flex:1;min-height:0;width:100%}
 .dtbl-side>.data-tbl{min-width:0}
+.dtbl-badge{flex-shrink:0;margin-top:8px;padding:7px 10px;background:#F5F4FF;border-radius:6px;font-size:11px;color:#1A1917;line-height:1.45;font-variant-numeric:tabular-nums}
+.dtbl-badge .acc{color:#6366F1;font-weight:600}
 </style>
 </head>
 <body>
@@ -625,6 +627,23 @@ function syncTblScroll(wrap,prevScroll){
   }
 }
 function coalesceByY(pts){const out=[];for(const p of pts){const last=out[out.length-1];if(last&&last.y===p.y)last.xMax=p.x;else out.push({xMin:p.x,xMax:p.x,y:p.y});}return out;}
+function wtBandAt(col,wR){
+  if(wR<SPEC_MIN_LBS||wR>SPEC_MAX_LBS)return null;
+  const reb=SPEC_RAW[wR-SPEC_MIN_LBS][col];
+  let wMin=wR,wMax=wR;
+  while(wMin>SPEC_MIN_LBS&&SPEC_RAW[wMin-1-SPEC_MIN_LBS][col]===reb)wMin--;
+  while(wMax<SPEC_MAX_LBS&&SPEC_RAW[wMax+1-SPEC_MIN_LBS][col]===reb)wMax++;
+  const nextW=wMax<SPEC_MAX_LBS?wMax+1:null;
+  return{reb,wMin,wMax,nextW,nextReb:nextW!=null?SPEC_RAW[nextW-SPEC_MIN_LBS][col]:null};
+}
+function fmtClicks(n){return`${n} click${n===1?'':'s'}`;}
+function wtBadgeHTML(col,wR){
+  const b=wtBandAt(col,wR);if(!b)return'';
+  const range=b.wMin===b.wMax?`${fmtW(b.wMin)} ${unit}`:`${fmtW(b.wMin)} – ${fmtW(b.wMax)} ${unit}`;
+  let t=`<span class="acc">${fmtClicks(b.reb)}</span> holds ${range}`;
+  if(b.nextW!=null)t+=` · next change at ${fmtW(b.nextW)} ${unit} → <span class="acc">${fmtClicks(b.nextReb)}</span>`;
+  return`<div class="dtbl-badge">${t}</div>`;
+}
 function foxPsiBands(){const lo=FOX[0][2],hi=FOX[FOX.length-1][2],pts=[];for(let p=lo;p<=hi;p++)pts.push({x:p,y:foxRebByPsi(p)});return coalesceByY(pts);}
 function bandTable(psiHeader,bands,anchor,intPsi){
   const dist=b=>Math.max(0,b.xMin-anchor,anchor-b.xMax);
@@ -647,7 +666,7 @@ function renderShockTable(){
     const rows=shockWtRows(),wR=Math.floor(wLbs);
     let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div><div class="dtbl-cell">Pressure, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">`;
     rows.forEach(r=>{h+=`<div class="dtbl-row${wR===r.w?' tbl-hi':''}"><div class="dtbl-cell">${fmtW(r.w)}</div><div class="dtbl-cell">${Math.round(r.psi)}</div><div class="dtbl-cell">${r.reb}</div></div>`;});
-    t.innerHTML=h+'</div>';
+    t.innerHTML=h+'</div>'+wtBadgeHTML(2,wR);
   } else {
     t.innerHTML=bandTable('Pressure, psi',coalesceByY(uniqByPsi(0,2)),spsi,false);
   }
@@ -663,7 +682,7 @@ function renderForkTable(){
     const wR=Math.floor(wLbs);
     if(!showSj15&&!showFox){t.innerHTML='';}
     else{
-      const sj15=()=>{let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div><div class="dtbl-cell">SJ15, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">`;SPEC_RAW.forEach((r,i)=>{const w=SPEC_MIN_LBS+i;h+=`<div class="dtbl-row${wR===w?' tbl-hi':''}"><div class="dtbl-cell">${fmtW(w)}</div><div class="dtbl-cell">${Math.round(r[1])}</div><div class="dtbl-cell">${r[3]}</div></div>`;});return h+'</div>';};
+      const sj15=()=>{let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div><div class="dtbl-cell">SJ15, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">`;SPEC_RAW.forEach((r,i)=>{const w=SPEC_MIN_LBS+i;h+=`<div class="dtbl-row${wR===w?' tbl-hi':''}"><div class="dtbl-cell">${fmtW(w)}</div><div class="dtbl-cell">${Math.round(r[1])}</div><div class="dtbl-cell">${r[3]}</div></div>`;});return h+'</div>'+wtBadgeHTML(3,wR);};
       const fox=()=>{let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div><div class="dtbl-cell">Fox, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">`;FOX.forEach(r=>{const lo=r[0],hi=r[1]-1,hit=wR>=r[0]&&wR<r[1];const w=lo===hi?fmtW(lo):`${fmtW(lo)} – ${fmtW(hi)}`;h+=`<div class="dtbl-row${hit?' tbl-hi':''}"><div class="dtbl-cell">${w}</div><div class="dtbl-cell">${r[2]}</div><div class="dtbl-cell">${r[3]}</div></div>`;});return h+'</div>';};
       if(showSj15&&showFox)t.innerHTML=`<div class="dtbl-side"><div class="data-tbl">${sj15()}</div><div class="data-tbl">${fox()}</div></div>`;
       else if(showSj15)t.innerHTML=sj15();
