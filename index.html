@@ -275,6 +275,7 @@ const FORK_FOX_PSI_MAX   = Math.max(...FOX.map(r=>r[2]));   // 106
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let mode='wt',unit='lbs',riderLbs=156,gearLbs=10,wLbs=166,spsi=171,fpsi=75,sXMode='wt',fXMode='wt',showSj15=true,showFox=true;
 let showSTbl=false,showFTbl=false;
+let _booting=false;
 
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
 function specAt(lbs){const w=Math.floor(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC_RAW[w-SPEC_MIN_LBS]:null;}
@@ -732,7 +733,11 @@ function update(){
     svv('fFoxPsi',f?f.psi:null,f?.sec?.psi??null);
     svv('fFoxReb',f?f.c:null,f?.sec?.c??null);
     oor('sOor',!s);oor('fSj15Oor',!s);oor('fFoxOor',!f);
-    document.getElementById('riderIn').classList.toggle('oor-err',!s||!f);
+    const wtOor=!s||!f;
+    document.getElementById('riderIn').classList.toggle('oor-err',wtOor);
+    document.getElementById('gearIn').classList.toggle('oor-err',wtOor);
+    document.getElementById('spIn').classList.remove('oor-err');
+    document.getElementById('fpIn').classList.remove('oor-err');
   } else {
     const sIn=spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX;
     const fSpecIn=fpsi>=FORK_SPEC_PSI_MIN&&fpsi<=FORK_SPEC_PSI_MAX;
@@ -747,6 +752,10 @@ function update(){
     svv('fFoxPsi',fFoxIn?fpsi:null,null);
     svv('fFoxReb',foxOpts.primary,foxOpts.secondary);
     oor('sOor',!sIn);oor('fSj15Oor',!fSpecIn);oor('fFoxOor',!fFoxIn);
+    document.getElementById('spIn').classList.toggle('oor-err',!sIn);
+    document.getElementById('fpIn').classList.toggle('oor-err',!fSpecIn||!fFoxIn);
+    document.getElementById('riderIn').classList.remove('oor-err');
+    document.getElementById('gearIn').classList.remove('oor-err');
   }
   if(SC){
     const inRange=mode==='psi'?(spsi>=SHOCK_SPEC_PSI_MIN&&spsi<=SHOCK_SPEC_PSI_MAX):specAt(wLbs)!==null;
@@ -773,10 +782,7 @@ function setMode(m){
   });
   document.body.classList.toggle('mode-psi',m==='psi');
   if(m==='psi'){spsi=Math.round(spsi);fpsi=Math.round(fpsi);document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
-  showSTbl=false;showFTbl=false;
-  document.getElementById('tblBtnS').classList.remove('on');
-  document.getElementById('tblBtnF').classList.remove('on');
-  refreshCharts();update();
+  if(!_booting){refreshCharts();update();}
 }
 
 function setUnit(u){
@@ -796,7 +802,7 @@ function setUnit(u){
   rEl.value=u==='kg'?(riderLbs/LBS_PER_KG).toFixed(1):Math.round(riderLbs);
   gEl.value=u==='kg'?(gearLbs/LBS_PER_KG).toFixed(1):Math.round(gearLbs);
   document.getElementById('totalDisp').textContent='= '+(u==='kg'?(wLbs/LBS_PER_KG).toFixed(1)+' kg':Math.round(wLbs)+' lbs');
-  refreshCharts();update();
+  if(!_booting){refreshCharts();update();}
 }
 
 function clipDec(el){const v=el.value;if(!v)return;const c=unit==='kg'?v.replace(/(\.\d).*/,'$1'):v.replace(/\..*/,'');if(c!==v)el.value=c;}
@@ -905,6 +911,7 @@ function loadState(){
 }
 
 window.addEventListener('load',()=>{
+  _booting=true;
   loadState();
   sXMode=mode; fXMode=mode;
   setUnit(unit);
@@ -913,6 +920,7 @@ window.addEventListener('load',()=>{
   document.getElementById('tFoxSer').classList.toggle('on',showFox);
   document.getElementById('tSj15').setAttribute('aria-pressed',String(showSj15));
   document.getElementById('tFoxSer').setAttribute('aria-pressed',String(showFox));
+  _booting=false;
   initCharts();
   update();
 });
