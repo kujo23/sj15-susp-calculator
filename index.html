@@ -660,18 +660,15 @@ function renderForkTable(){
   const prevScroll=el.querySelector('.dtbl-scroll')?.scrollTop||0;
   const t=el.querySelector('.data-tbl');
   if(mode==='wt'){
-    const rows=forkWtRows(),wR=Math.floor(wLbs);
-    let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div>`;
-    if(showSj15)h+='<div class="dtbl-cell">SJ15, psi</div><div class="dtbl-cell">SJ15 Rebound</div>';
-    if(showFox)h+='<div class="dtbl-cell">Fox, psi</div><div class="dtbl-cell">Fox Rebound</div>';
-    h+='</div></div><div class="dtbl-scroll">';
-    rows.forEach(r=>{
-      let c=`<div class="dtbl-cell">${fmtW(r.w)}</div>`;
-      if(showSj15)c+=`<div class="dtbl-cell">${Math.round(r.sp)}</div><div class="dtbl-cell">${r.sr}</div>`;
-      if(showFox)c+=`<div class="dtbl-cell">${r.fp??'—'}</div><div class="dtbl-cell">${r.fr??'—'}</div>`;
-      h+=`<div class="dtbl-row${wR===r.w?' tbl-hi':''}">${c}</div>`;
-    });
-    t.innerHTML=h+'</div>';
+    const wR=Math.floor(wLbs);
+    if(!showSj15&&!showFox){t.innerHTML='';}
+    else{
+      const sj15=()=>{let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div><div class="dtbl-cell">SJ15, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">`;SPEC_RAW.forEach((r,i)=>{const w=SPEC_MIN_LBS+i;h+=`<div class="dtbl-row${wR===w?' tbl-hi':''}"><div class="dtbl-cell">${fmtW(w)}</div><div class="dtbl-cell">${Math.round(r[1])}</div><div class="dtbl-cell">${r[3]}</div></div>`;});return h+'</div>';};
+      const fox=()=>{let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Weight, ${unit}</div><div class="dtbl-cell">Fox, psi</div><div class="dtbl-cell">Rebound</div></div></div><div class="dtbl-scroll">`;FOX.forEach(r=>{const lo=r[0],hi=r[1]-1,hit=wR>=r[0]&&wR<r[1];const w=lo===hi?fmtW(lo):`${fmtW(lo)} – ${fmtW(hi)}`;h+=`<div class="dtbl-row${hit?' tbl-hi':''}"><div class="dtbl-cell">${w}</div><div class="dtbl-cell">${r[2]}</div><div class="dtbl-cell">${r[3]}</div></div>`;});return h+'</div>';};
+      if(showSj15&&showFox)t.innerHTML=`<div class="dtbl-side"><div class="data-tbl">${sj15()}</div><div class="data-tbl">${fox()}</div></div>`;
+      else if(showSj15)t.innerHTML=sj15();
+      else t.innerHTML=fox();
+    }
   } else {
     if(!showSj15&&!showFox){t.innerHTML='';}
     else{
