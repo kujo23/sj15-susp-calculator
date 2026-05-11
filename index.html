@@ -773,9 +773,6 @@ function setMode(m){
   });
   document.body.classList.toggle('mode-psi',m==='psi');
   if(m==='psi'){spsi=Math.round(spsi);fpsi=Math.round(fpsi);document.getElementById('spIn').value=spsi;document.getElementById('fpIn').value=fpsi;}
-  showSTbl=false;showFTbl=false;
-  document.getElementById('tblBtnS').classList.remove('on');
-  document.getElementById('tblBtnF').classList.remove('on');
   refreshCharts();update();
 }
 
