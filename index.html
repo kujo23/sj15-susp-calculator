@@ -279,7 +279,6 @@ let showSTbl=false,showFTbl=false;
 // ── LOOKUPS ───────────────────────────────────────────────────────────────────
 function specAt(lbs){const w=Math.floor(lbs);return(w>=SPEC_MIN_LBS&&w<=SPEC_MAX_LBS)?SPEC_RAW[w-SPEC_MIN_LBS]:null;}
 function foxAt(lbs){for(let i=0;i<FOX.length;i++){const r=FOX[i];if(lbs>=r[0]&&lbs<r[1]){const sec=(lbs===r[0]&&i>0)?{psi:FOX[i-1][2],c:FOX[i-1][3]}:null;return{psi:r[2],c:r[3],sec};}}return null;}
-function nearestReb(pi,ri,psi){const pts=uniqByPsi(pi,ri);let b=pts[0],bd=Infinity;for(const p of pts){const d=Math.abs(p.x-psi);if(d<bd||(d===bd&&p.x>b.x)){bd=d;b=p;}}return b.y;}
 function foxRebByPsi(psi){let b=FOX[0],bd=Infinity;for(const r of FOX){const d=Math.abs(r[2]-psi);if(d<bd||(d===bd&&r[2]>b[2])){bd=d;b=r;}}return b[3];}
 // Tie-only secondary: single answer unless input is exactly equidistant
 // between two entries with different rebounds. Higher-PSI entry is primary.
@@ -607,13 +606,7 @@ function updateLegends(shx,fhx){
 
 // ── TABLE BUILDERS ────────────────────────────────────────────────────────────
 function shockWtRows(){return SPEC_RAW.map((r,i)=>({w:SPEC_MIN_LBS+i,psi:r[0],reb:r[2]}));}
-function forkWtRows(){return SPEC_RAW.map((r,i)=>{const w=SPEC_MIN_LBS+i,f=foxAt(w);return{w,sp:r[1],sr:r[3],fp:f?f.psi:null,fr:f?f.c:null};});}
 function fmtW(w){return unit==='kg'?(w/LBS_PER_KG).toFixed(1):String(w);}
-function nearPSI(arr,target){
-  let b=arr[0];
-  for(const p of arr)if(Math.abs(p-target)<Math.abs(b-target)||(Math.abs(p-target)===Math.abs(b-target)&&p>b))b=p;
-  return b;
-}
 function syncTblScroll(wrap,prevScroll){
   if(!wrap||wrap.style.display==='none')return;
   const scrollEl=wrap.querySelector('.dtbl-scroll');
