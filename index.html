@@ -96,6 +96,8 @@ body.mode-psi .psi-row{display:none}
 .dtbl-scroll .dtbl-row+.dtbl-row .dtbl-cell{border-top:1px solid #F2F1EE}
 .dtbl-row.tbl-hi .dtbl-cell{background:#F5F4FF}
 .dtbl-row.tbl-hi .dtbl-cell:first-child{color:#6366F1;font-weight:600}
+.dtbl-side{display:flex;flex-direction:row;gap:20px;flex:1;min-height:0;width:100%}
+.dtbl-side>.data-tbl{min-width:0}
 </style>
 </head>
 <body>
@@ -622,6 +624,19 @@ function syncTblScroll(wrap,prevScroll){
     scrollEl.scrollTop+=rr.top-cr.top-(scrollEl.clientHeight-row.clientHeight)/2;
   }
 }
+function coalesceByY(pts){const out=[];for(const p of pts){const last=out[out.length-1];if(last&&last.y===p.y)last.xMax=p.x;else out.push({xMin:p.x,xMax:p.x,y:p.y});}return out;}
+function foxPsiBands(){const lo=FOX[0][2],hi=FOX[FOX.length-1][2],pts=[];for(let p=lo;p<=hi;p++)pts.push({x:p,y:foxRebByPsi(p)});return coalesceByY(pts);}
+function bandTable(psiHeader,bands,anchor,intPsi){
+  const dist=b=>Math.max(0,b.xMin-anchor,anchor-b.xMax);
+  let nx=bands[0],nd=dist(nx);for(const b of bands){const d=dist(b);if(d<nd){nd=d;nx=b;}}
+  let h=`<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">${psiHeader}</div><div class="dtbl-cell">Rebound</div><div class="dtbl-cell">Span, psi</div></div></div><div class="dtbl-scroll">`;
+  bands.forEach(b=>{
+    const psi=b.xMin===b.xMax?(intPsi?String(b.xMin):b.xMin.toFixed(1)):(intPsi?`${b.xMin} – ${b.xMax}`:`${b.xMin.toFixed(1)} – ${b.xMax.toFixed(1)}`);
+    const span=Math.max(0,Math.floor(b.xMax)-Math.ceil(b.xMin)+1);
+    h+=`<div class="dtbl-row${b===nx?' tbl-hi':''}"><div class="dtbl-cell">${psi}</div><div class="dtbl-cell">${b.y}</div><div class="dtbl-cell">${span}</div></div>`;
+  });
+  return h+'</div>';
+}
 function renderShockTable(){
   const el=document.getElementById('sTblWrap');if(!el)return;
   if(!showSTbl){el.style.display='none';return;}
@@ -634,13 +649,7 @@ function renderShockTable(){
     rows.forEach(r=>{h+=`<div class="dtbl-row${wR===r.w?' tbl-hi':''}"><div class="dtbl-cell">${fmtW(r.w)}</div><div class="dtbl-cell">${Math.round(r.psi)}</div><div class="dtbl-cell">${r.reb}</div></div>`;});
     t.innerHTML=h+'</div>';
   } else {
-    const pts=uniqByPsi(0,2),bands=[];
-    for(const p of pts){const last=bands[bands.length-1];if(last&&last.y===p.y)last.xMax=p.x;else bands.push({xMin:p.x,xMax:p.x,y:p.y});}
-    const dist=b=>Math.max(0,b.xMin-spsi,spsi-b.xMax);
-    let nx=bands[0],nd=dist(nx);for(const b of bands){const d=dist(b);if(d<nd){nd=d;nx=b;}}
-    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Pressure, psi</div><div class="dtbl-cell">Rebound</div><div class="dtbl-cell">Span, psi</div></div></div><div class="dtbl-scroll">';
-    bands.forEach(b=>{const psi=b.xMin===b.xMax?b.xMin.toFixed(1):`${b.xMin.toFixed(1)} – ${b.xMax.toFixed(1)}`;const span=(b.xMax-b.xMin).toFixed(1);h+=`<div class="dtbl-row${b===nx?' tbl-hi':''}"><div class="dtbl-cell">${psi}</div><div class="dtbl-cell">${b.y}</div><div class="dtbl-cell">${span}</div></div>`;});
-    t.innerHTML=h+'</div>';
+    t.innerHTML=bandTable('Pressure, psi',coalesceByY(uniqByPsi(0,2)),spsi,false);
   }
   syncTblScroll(el,prevScroll);
 }
@@ -664,21 +673,13 @@ function renderForkTable(){
     });
     t.innerHTML=h+'</div>';
   } else {
-    const sj15=uniqByPsi(1,3),fox=FOX.map(r=>({x:r[2],y:r[3]}));
-    const allX=new Set([...(showSj15?sj15:[]).map(p=>p.x),...(showFox?fox:[]).map(p=>p.x)]);
-    const sorted=[...allX].sort((a,b)=>a-b);
-    const nx=sorted.length?nearPSI(sorted,fpsi):null;
-    let h='<div class="dtbl-head"><div class="dtbl-row"><div class="dtbl-cell">Pressure, psi</div>';
-    if(showSj15)h+='<div class="dtbl-cell">SJ15 Rebound</div>';
-    if(showFox)h+='<div class="dtbl-cell">Fox Rebound</div>';
-    h+='</div></div><div class="dtbl-scroll">';
-    sorted.forEach(p=>{
-      let c=`<div class="dtbl-cell">${p.toFixed(1)}</div>`;
-      if(showSj15)c+=`<div class="dtbl-cell">${(sj15.find(pt=>pt.x===p)||{y:'—'}).y}</div>`;
-      if(showFox)c+=`<div class="dtbl-cell">${(fox.find(pt=>pt.x===p)||{y:'—'}).y}</div>`;
-      h+=`<div class="dtbl-row${p===nx?' tbl-hi':''}">${c}</div>`;
-    });
-    t.innerHTML=h+'</div>';
+    if(!showSj15&&!showFox){t.innerHTML='';}
+    else{
+      let h='<div class="dtbl-side">';
+      if(showSj15)h+='<div class="data-tbl">'+bandTable('SJ15, psi',coalesceByY(uniqByPsi(1,3)),fpsi,false)+'</div>';
+      if(showFox)h+='<div class="data-tbl">'+bandTable('Fox, psi',foxPsiBands(),fpsi,true)+'</div>';
+      t.innerHTML=h+'</div>';
+    }
   }
   syncTblScroll(el,prevScroll);
 }
